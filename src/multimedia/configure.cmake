@@ -11,18 +11,45 @@
 
 qt_find_package(ALSA PROVIDED_TARGETS ALSA::ALSA MODULE_NAME multimedia QMAKE_LIB alsa)
 qt_find_package(AVFoundation PROVIDED_TARGETS AVFoundation::AVFoundation MODULE_NAME multimedia QMAKE_LIB avfoundation)
-qt_find_package(GStreamer PROVIDED_TARGETS GStreamer::GStreamer MODULE_NAME multimedia QMAKE_LIB gstreamer_1_0)
-qt_find_package(GStreamer COMPONENTS App PROVIDED_TARGETS GStreamer::App MODULE_NAME multimedia QMAKE_LIB gstreamer_app_1_0)
+qt_find_package(GStreamer 1.18
+    PROVIDED_TARGETS GStreamer::GStreamer
+    MODULE_NAME multimedia
+    QMAKE_LIB gstreamer_1_0)
+qt_find_package(GStreamer 1.18
+    COMPONENTS App
+    PROVIDED_TARGETS GStreamer::App
+    MODULE_NAME multimedia
+    QMAKE_LIB gstreamer_app_1_0)
 qt_add_qmake_lib_dependency(gstreamer_app_1_0 gstreamer_1_0)
-qt_find_package(GStreamer OPTIONAL_COMPONENTS Photography PROVIDED_TARGETS GStreamer::Photography MODULE_NAME multimedia QMAKE_LIB gstreamer_photography_1_0) # special case
+qt_find_package(GStreamer 1.18
+    OPTIONAL_COMPONENTS Photography
+    PROVIDED_TARGETS GStreamer::Photography
+    MODULE_NAME multimedia
+    QMAKE_LIB gstreamer_photography_1_0) # special case
 qt_add_qmake_lib_dependency(gstreamer_photography_1_0 gstreamer_1_0)
-qt_find_package(GStreamer OPTIONAL_COMPONENTS Gl PROVIDED_TARGETS GStreamer::Gl MODULE_NAME multimedia QMAKE_LIB gstreamer_gl_1_0) # special case
+qt_find_package(GStreamer 1.18
+    OPTIONAL_COMPONENTS Gl
+    PROVIDED_TARGETS GStreamer::Gl
+    MODULE_NAME multimedia
+    QMAKE_LIB gstreamer_gl_1_0) # special case
 qt_add_qmake_lib_dependency(gstreamer_gl_1_0 gstreamer_1_0)
-qt_find_package(GStreamer OPTIONAL_COMPONENTS GlWayland PROVIDED_TARGETS GStreamer::GlWayland MODULE_NAME multimedia QMAKE_LIB gstreamer_gl_wayland_1_0) # special case
+qt_find_package(GStreamer 1.18
+    OPTIONAL_COMPONENTS GlWayland
+    PROVIDED_TARGETS GStreamer::GlWayland
+    MODULE_NAME multimedia
+    QMAKE_LIB gstreamer_gl_wayland_1_0) # special case
 qt_add_qmake_lib_dependency(gstreamer_gl_wayland_1_0 gstreamer_1_0)
-qt_find_package(GStreamer OPTIONAL_COMPONENTS GlEgl PROVIDED_TARGETS GStreamer::GlEgl MODULE_NAME multimedia QMAKE_LIB gstreamer_gl_egl_1_0) # special case
+qt_find_package(GStreamer 1.18
+    OPTIONAL_COMPONENTS GlEgl
+    PROVIDED_TARGETS GStreamer::GlEgl
+    MODULE_NAME multimedia
+    QMAKE_LIB gstreamer_gl_egl_1_0) # special case
 qt_add_qmake_lib_dependency(gstreamer_gl_egl_1_0 gstreamer_1_0)
-qt_find_package(GStreamer OPTIONAL_COMPONENTS GlX11 PROVIDED_TARGETS GStreamer::GlX11 MODULE_NAME multimedia QMAKE_LIB gstreamer_gl_x11_1_0) # special case
+qt_find_package(GStreamer 1.18
+    OPTIONAL_COMPONENTS GlX11
+    PROVIDED_TARGETS GStreamer::GlX11
+    MODULE_NAME multimedia
+    QMAKE_LIB gstreamer_gl_x11_1_0) # special case
 qt_add_qmake_lib_dependency(gstreamer_gl_x11_1_0 gstreamer_1_0)
 qt_find_package(MMRendererCore PROVIDED_TARGETS MMRendererCore::MMRendererCore MODULE_NAME multimedia QMAKE_LIB mmrndcore)
 qt_find_package(MMRenderer PROVIDED_TARGETS MMRenderer::MMRenderer MODULE_NAME multimedia QMAKE_LIB mmrndclient)

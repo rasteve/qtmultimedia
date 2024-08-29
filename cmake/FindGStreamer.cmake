@@ -45,7 +45,7 @@ function(find_gstreamer_component component)
     if(NOT TARGET ${target})
         if(PKG_CONFIG_FOUND)
             string(TOUPPER ${component} upper)
-            pkg_check_modules(PC_GSTREAMER_${upper} IMPORTED_TARGET ${pkgconfig_name} )
+            pkg_check_modules(PC_GSTREAMER_${upper} IMPORTED_TARGET ${pkgconfig_name}>=${GStreamer_FIND_VERSION} )
             if(TARGET PkgConfig::PC_GSTREAMER_${upper})
                 add_library(GStreamer::${component} INTERFACE IMPORTED)
                 target_link_libraries(GStreamer::${component} INTERFACE PkgConfig::PC_GSTREAMER_${upper})
@@ -65,6 +65,7 @@ function(find_gstreamer_component component)
             find_library(GStreamer_${component}_LIBRARY
                 NAMES ${library}
             )
+
             if(${component} STREQUAL "Gl")
                 # search the gstglconfig.h include dir under the same root where the library is found
                 get_filename_component(gstglLibDir "${GStreamer_Gl_LIBRARY}" PATH)
@@ -79,15 +80,51 @@ function(find_gstreamer_component component)
                 endif()
             endif()
             if(GStreamer_${component}_LIBRARY AND GStreamer_${component}_INCLUDE_DIR)
-                add_library(GStreamer::${component} INTERFACE IMPORTED)
-                target_include_directories(GStreamer::${component} INTERFACE ${GStreamer_${component}_INCLUDE_DIR})
-                target_link_libraries(GStreamer::${component} INTERFACE ${GStreamer_${component}_LIBRARY})
-                if(ARGS_DEPENDENCIES)
-                    target_link_libraries(GStreamer::${component} INTERFACE ${ARGS_DEPENDENCIES})
+
+                if (NOT TARGET DUMMY_GStreamer::${component})
+
+                    string(REGEX MATCH "^([0-9]+)\\.([0-9]+)" GStreamerVersionMatch ${GStreamer_FIND_VERSION})
+                    set(VERSION_MAJOR ${CMAKE_MATCH_1})
+                    set(VERSION_MINOR ${CMAKE_MATCH_2})
+
+                    # hack alert: we cannot obtain the installed gstreamer version without a try_compile. however we
+                    # cannot try_compile without creating a target, as try_compile does not accept include paths. So we
+                    # need to create a dummy target
+
+                    add_library(DUMMY_GStreamer::${component} INTERFACE IMPORTED)
+                    target_include_directories(DUMMY_GStreamer::${component} INTERFACE ${GStreamer_${component}_INCLUDE_DIR})
+                    target_link_libraries(DUMMY_GStreamer::${component} INTERFACE ${GStreamer_${component}_LIBRARY})
+                    if(ARGS_DEPENDENCIES)
+                        target_link_libraries(DUMMY_GStreamer::${component} INTERFACE ${ARGS_DEPENDENCIES})
+                    endif()
+
+                    qt_config_compile_test(gstreamer_version_check_${component}
+                        LABEL "GStreamer Version test"
+                        LIBRARIES
+                            DUMMY_GStreamer::${component}
+                        CODE
+                    "#include <gst/gstversion.h>
+
+                    static_assert(GST_CHECK_VERSION(${VERSION_MAJOR}, ${VERSION_MINOR}, 0),
+                                  \"Minimum required GStreamer version is ${VERSION_MAJOR}.${VERSION_MINOR}\");
+
+                    int main()
+                    {
+                        return 0;
+                    }")
+
+                    if (${TEST_gstreamer_version_check_${component}})
+                        add_library(GStreamer::${component} INTERFACE IMPORTED)
+
+                        target_include_directories(GStreamer::${component} INTERFACE ${GStreamer_${component}_INCLUDE_DIR})
+                        target_link_libraries(GStreamer::${component} INTERFACE ${GStreamer_${component}_LIBRARY})
+                        if(ARGS_DEPENDENCIES)
+                            target_link_libraries(GStreamer::${component} INTERFACE ${ARGS_DEPENDENCIES})
+                        endif()
+                    endif()
                 endif()
             endif()
             mark_as_advanced(GStreamer_${component}_INCLUDE_DIR GStreamer_${component}_LIBRARY)
-
         endif()
     endif()
 

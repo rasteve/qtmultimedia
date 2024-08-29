@@ -451,7 +451,6 @@ std::optional<std::pair<QVideoFrameFormat, GstVideoInfo>> QGstCaps::formatAndVid
     case GST_VIDEO_TRANSFER_LOG100:
     case GST_VIDEO_TRANSFER_LOG316:
         break;
-#if GST_CHECK_VERSION(1, 18, 0)
     case GST_VIDEO_TRANSFER_SMPTE2084:
         transfer = QVideoFrameFormat::ColorTransfer_ST2084;
         break;
@@ -464,7 +463,6 @@ std::optional<std::pair<QVideoFrameFormat, GstVideoInfo>> QGstCaps::formatAndVid
     case GST_VIDEO_TRANSFER_BT601:
         transfer = QVideoFrameFormat::ColorTransfer_BT601;
         break;
-#endif
     }
     format.setColorTransfer(transfer);
 

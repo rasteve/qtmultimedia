@@ -13,13 +13,6 @@ QT_BEGIN_NAMESPACE
 
 Q_STATIC_LOGGING_CATEGORY(qLcGstPipeline, "qt.multimedia.gstpipeline");
 
-static constexpr GstSeekFlags rateChangeSeekFlags =
-#if GST_CHECK_VERSION(1, 18, 0)
-        GST_SEEK_FLAG_INSTANT_RATE_CHANGE;
-#else
-        GST_SEEK_FLAG_FLUSH;
-#endif
-
 struct QGstPipelinePrivate
 {
     explicit QGstPipelinePrivate(QGstBusHandle);
@@ -198,7 +191,7 @@ void QGstPipeline::applyPlaybackRate(bool forceFlushingSeek)
 
     // do not GST_SEEK_FLAG_FLUSH with GST_SEEK_TYPE_NONE
     // https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/3604
-    if (!forceFlushingSeek && GST_CHECK_VERSION(1, 18, 0)) {
+    if (!forceFlushingSeek) {
         bool asyncChangeSuccess = waitForAsyncStateChangeComplete();
         if (!asyncChangeSuccess) {
             qWarning()
@@ -208,8 +201,8 @@ void QGstPipeline::applyPlaybackRate(bool forceFlushingSeek)
 
         qCDebug(qLcGstPipeline) << "QGstPipeline::applyPlaybackRate instantly";
         bool success = gst_element_seek(
-                element(), d->m_rate, GST_FORMAT_UNDEFINED, rateChangeSeekFlags, GST_SEEK_TYPE_NONE,
-                GST_CLOCK_TIME_NONE, GST_SEEK_TYPE_NONE, GST_CLOCK_TIME_NONE);
+                element(), d->m_rate, GST_FORMAT_UNDEFINED, GST_SEEK_FLAG_INSTANT_RATE_CHANGE,
+                GST_SEEK_TYPE_NONE, GST_CLOCK_TIME_NONE, GST_SEEK_TYPE_NONE, GST_CLOCK_TIME_NONE);
         if (!success) {
             qDebug() << "setPlaybackRate: gst_element_seek failed";
             dumpGraph("applyPlaybackRateSeekFailed");

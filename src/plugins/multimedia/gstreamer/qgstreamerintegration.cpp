@@ -24,6 +24,8 @@
 
 QT_BEGIN_NAMESPACE
 
+static_assert(GST_CHECK_VERSION(1, 18, 0), "Minimum required GStreamer version is 1.18");
+
 static thread_local bool inCustomCameraConstruction = false;
 static thread_local QGstElement pendingCameraElement{};
 

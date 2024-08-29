@@ -506,11 +506,9 @@ bool QGstreamerCamera::isWhiteBalanceModeSupported(QCamera::WhiteBalanceMode mod
         case QCamera::WhiteBalanceFluorescent:
             return true;
         case QCamera::WhiteBalanceManual: {
-#if GST_CHECK_VERSION(1, 18, 0)
             GstPhotographyInterface *iface = GST_PHOTOGRAPHY_GET_INTERFACE(p);
             if (iface->set_color_temperature && iface->get_color_temperature)
                 return true;
-#endif
             break;
         }
         default:
@@ -589,7 +587,7 @@ void QGstreamerCamera::setColorTemperature(int temperature)
     }
 #endif
 
-#if QT_CONFIG(gstreamer_photography) && GST_CHECK_VERSION(1, 18, 0)
+#if QT_CONFIG(gstreamer_photography)
     if (auto *p = photography()) {
         GstPhotographyInterface *iface = GST_PHOTOGRAPHY_GET_INTERFACE(p);
         Q_ASSERT(iface->set_color_temperature);
