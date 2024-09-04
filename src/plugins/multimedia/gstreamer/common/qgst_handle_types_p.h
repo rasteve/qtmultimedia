@@ -245,6 +245,31 @@ struct QGstMiniObjectHandleHelper
     using UniqueHandle = QUniqueHandle<Traits>;
 };
 
+template <typename TypeArg>
+struct QGObjectHandleHelper
+{
+    struct Traits
+    {
+        using Type = TypeArg *;
+        static constexpr Type invalidValue() noexcept { return nullptr; }
+        static bool close(Type handle) noexcept
+        {
+            g_object_unref(G_OBJECT(handle));
+            return true;
+        }
+
+        static Type ref(Type handle) noexcept
+        {
+            if (G_OBJECT(handle))
+                g_object_ref(G_OBJECT(handle));
+            return handle;
+        }
+    };
+
+    using SharedHandle = QSharedHandle<Traits>;
+    using UniqueHandle = QUniqueHandle<Traits>;
+};
+
 } // namespace QGstImpl
 
 using QGstClockHandle = QGstImpl::QGstHandleHelper<GstClock>::UniqueHandle;

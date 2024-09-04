@@ -9,10 +9,14 @@
 #include <QtQGstreamerMediaPluginImpl/private/qgst_handle_types_p.h>
 #include <QtQGstreamerMediaPluginImpl/private/qgst_p.h>
 #include <QtQGstreamerMediaPluginImpl/private/qgst_debug_p.h>
+#include <QtQGstreamerMediaPluginImpl/private/qgst_discoverer_p.h>
 #include <QtQGstreamerMediaPluginImpl/private/qgstpipeline_p.h>
 #include <QtQGstreamerMediaPluginImpl/private/qgstreamermetadata_p.h>
 
 #include <set>
+#include <variant>
+
+#include <gst/gstversion.h>
 
 QT_USE_NAMESPACE
 
@@ -43,6 +47,8 @@ QGString makeQGString(std::string_view str)
     snprintf(s, str.size() + 1, "%s", str.data());
     return QGString{ s };
 };
+
+const bool validateBitRates = GST_CHECK_VERSION(1, 24, 0);
 
 } // namespace
 
@@ -468,6 +474,110 @@ void tst_GStreamer::QGstStructureView_parseCameraFormat()
         QCOMPARE(QGstStructureView(cameraFormat).pixelFormat(),
                  QVideoFrameFormat::PixelFormat::Format_YUYV);
     }
+}
+
+using MediaSource = std::variant<QUrl, std::shared_ptr<QTemporaryFile>, std::shared_ptr<QIODevice>>;
+
+template <class... Ts>
+struct qOverloadedVisitor : Ts...
+{
+    using Ts::operator()...;
+};
+template <class... Ts>
+qOverloadedVisitor(Ts...) -> qOverloadedVisitor<Ts...>;
+
+void tst_GStreamer::QGstDiscoverer_discoverMedia()
+{
+    using namespace Qt::Literals;
+    using namespace QGst;
+    using namespace std::chrono_literals;
+
+    QFETCH(MediaSource, media);
+
+    QGstDiscoverer discoverer;
+
+    auto discoverUrl = [&](const QUrl &media) {
+        return discoverer.discover(media);
+    };
+    auto discoverFromFile = [&](const std::shared_ptr<QTemporaryFile> &media) {
+        return discoverer.discover(QUrl::fromLocalFile(media->fileName()));
+    };
+    auto discoverFromStream = [&](const std::shared_ptr<QIODevice> &media) {
+        return discoverer.discover(media.get());
+    };
+
+    auto result = std::visit(
+            qOverloadedVisitor{
+                    discoverUrl,
+                    discoverFromFile,
+                    discoverFromStream,
+            },
+            media);
+
+    QVERIFY(result);
+    QVERIFY(!result->isLive);
+    QVERIFY(result->isSeekable);
+    QCOMPARE(result->videoStreams.size(), 1u);
+    QCOMPARE(result->audioStreams.size(), 1u);
+    QCOMPARE(result->duration, 1003000000ns);
+
+    using Key = QMediaMetaData::Key;
+
+    // container metadata
+    QMediaMetaData containerMetaData = toContainerMetadata(*result);
+    QCOMPARE(containerMetaData.value(Key::AlbumTitle), u"My Album"_s);
+    QCOMPARE(containerMetaData.value(Key::ContributingArtist), u"My Artist"_s);
+    QCOMPARE(containerMetaData.value(Key::Title), u"My Title"_s);
+    // QCOMPARE(containerMetaData.value(Key::Date), u"My Album"s);
+
+    // video metadata
+    QMediaMetaData videoStreamMetaData = toStreamMetadata(result->videoStreams[0]);
+    QCOMPARE(videoStreamMetaData.value(Key::Resolution), QSize(1920, 1080));
+    if (validateBitRates)
+        QCOMPARE(videoStreamMetaData.value(Key::VideoBitRate), 30029);
+    QCOMPARE(videoStreamMetaData.value(Key::VideoFrameRate), 25);
+    QCOMPARE(videoStreamMetaData.value(Key::VideoCodec).value<QMediaFormat::VideoCodec>(),
+             QMediaFormat::VideoCodec::H265);
+
+    // audio metadata
+    QMediaMetaData audioStreamMetaData = toStreamMetadata(result->audioStreams[0]);
+    if (validateBitRates)
+        QCOMPARE(audioStreamMetaData.value(Key::AudioBitRate), 159554);
+    QCOMPARE(audioStreamMetaData.value(Key::Language), QLocale::Language::AnyLanguage);
+}
+
+void tst_GStreamer::QGstDiscoverer_discoverMedia_data()
+{
+    QTest::addColumn<MediaSource>("media");
+
+    auto makeTemporaryFile = [] {
+        auto file = QFile(":/metadata_test_file.mp4");
+        return std::shared_ptr<QTemporaryFile>(QTemporaryFile::createNativeFile(file));
+    };
+
+    QTest::newRow("qrc") << MediaSource{
+        QUrl("qrc:/metadata_test_file.mp4"),
+    };
+    QTest::newRow("QIODevice") << MediaSource{
+        std::make_shared<QFile>(":/metadata_test_file.mp4"),
+    };
+
+    QTest::newRow("filesystem file") << MediaSource{
+        makeTemporaryFile(),
+    };
+}
+
+void tst_GStreamer::QGstDiscoverer_discoverMedia_withRotation()
+{
+    using namespace QGst;
+
+    QGstDiscoverer discoverer;
+    auto result = discoverer.discover(QUrl("qrc:/color_matrix_90_deg_clockwise.mp4"));
+
+    QMediaMetaData videoStreamMetaData = toStreamMetadata(result->videoStreams[0]);
+
+    QCOMPARE(videoStreamMetaData.value(QMediaMetaData::Key::Orientation).value<QtVideo::Rotation>(),
+             QtVideo::Rotation::Clockwise90);
 }
 
 QTEST_GUILESS_MAIN(tst_GStreamer)

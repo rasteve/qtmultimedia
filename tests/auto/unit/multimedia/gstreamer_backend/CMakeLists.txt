@@ -12,4 +12,9 @@ qt_internal_add_test(tst_gstreamer_backend
     LIBRARIES
         Qt::MultimediaPrivate
         Qt::QGstreamerMediaPluginImplPrivate
+
+    BUILTIN_TESTDATA
+    TESTDATA
+        "metadata_test_file.mp4"
+        "color_matrix_90_deg_clockwise.mp4"
 )

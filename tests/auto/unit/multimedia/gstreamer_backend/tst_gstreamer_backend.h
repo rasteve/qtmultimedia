@@ -51,6 +51,11 @@ private slots:
 
     void QGstStructureView_parseCameraFormat();
 
+    void QGstDiscoverer_discoverMedia();
+    void QGstDiscoverer_discoverMedia_data();
+
+    void QGstDiscoverer_discoverMedia_withRotation();
+
 private:
     QGstreamerIntegration integration;
 };

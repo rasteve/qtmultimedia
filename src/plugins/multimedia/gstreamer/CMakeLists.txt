@@ -13,6 +13,7 @@ qt_internal_add_module(QGstreamerMediaPluginImplPrivate
         common/qgst.cpp common/qgst_p.h
         common/qgst_bus_observer.cpp common/qgst_bus_observer_p.h
         common/qgst_debug.cpp common/qgst_debug_p.h
+        common/qgst_discoverer.cpp common/qgst_discoverer_p.h
         common/qgst_handle_types_p.h
         common/qgstreameraudioinput.cpp common/qgstreameraudioinput_p.h
         common/qgstreameraudiooutput.cpp common/qgstreameraudiooutput_p.h
