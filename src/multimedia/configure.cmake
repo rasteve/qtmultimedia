@@ -20,7 +20,7 @@ qt_find_package(GStreamer 1.20
     PROVIDED_TARGETS GStreamer::App
     MODULE_NAME multimedia
     QMAKE_LIB gstreamer_app_1_0)
-qt_find_package(GStreamer
+qt_find_package(GStreamer 1.20
     COMPONENTS Play
     PROVIDED_TARGETS GStreamer::Play
     MODULE_NAME multimedia
@@ -168,7 +168,7 @@ qt_feature("evr" PUBLIC PRIVATE
 )
 qt_feature("gstreamer" PRIVATE
     LABEL "QtMM GStreamer plugin"
-    CONDITION TARGET GStreamer::GStreamer AND TARGET GStreamer::App
+    CONDITION TARGET GStreamer::GStreamer AND TARGET GStreamer::App AND TARGET GStreamer::Play
     ENABLE INPUT_gstreamer STREQUAL 'yes'
     DISABLE INPUT_gstreamer STREQUAL 'no'
 )

@@ -165,6 +165,14 @@ find_gstreamer_component(Allocators
     LIBRARY gstallocators-1.0
     DEPENDENCIES GStreamer::Core)
 
+if(Play IN_LIST GStreamer_FIND_COMPONENTS)
+   find_gstreamer_component(Play
+       PC_NAME gstreamer-play-1.0
+       HEADER gst/gst.h
+       LIBRARY gstplay-1.0
+       DEPENDENCIES GStreamer::Core GStreamer::Video)
+endif()
+
 if(App IN_LIST GStreamer_FIND_COMPONENTS)
     find_gstreamer_component(App
         PC_NAME gstreamer-app-1.0

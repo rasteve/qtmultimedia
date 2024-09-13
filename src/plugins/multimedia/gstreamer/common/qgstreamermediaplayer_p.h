@@ -24,8 +24,11 @@
 #include <QtCore/qurl.h>
 
 #include <common/qgst_bus_observer_p.h>
+#include <common/qgst_discoverer_p.h>
 #include <common/qgst_p.h>
 #include <common/qgstpipeline_p.h>
+
+#include <gst/play/gstplay.h>
 
 #include <array>
 
@@ -37,9 +40,10 @@ class QGstreamerVideoOutput;
 
 class QGstreamerMediaPlayer : public QObject,
                               public QPlatformMediaPlayer,
-                              public QGstreamerBusMessageFilter,
-                              public QGstreamerSyncMessageFilter
+                              public QGstreamerBusMessageFilter
 {
+    using QGstPlayHandle = QGstImpl::QGstHandleHelper<GstPlay>::UniqueHandle;
+
 public:
     static QMaybe<QPlatformMediaPlayer *> create(QMediaPlayer *parent = nullptr);
     ~QGstreamerMediaPlayer();
@@ -84,64 +88,13 @@ public:
 private:
     QGstreamerMediaPlayer(QGstreamerVideoOutput *videoOutput, QMediaPlayer *parent);
 
-    // track selection
-    struct TrackSelector
-    {
-        TrackSelector(TrackType, QGstElement selector);
-
-        QByteArrayView streamIdAtIndex(int index);
-
-        void removeAllInputPads();
-        QGstPad inputPad(int index);
-        void setActiveInputPad(const QGstPad &input);
-        QGstPad getSinkPadForDecoderPad(const QGstPad &decoderPad);
-
-        void addAndConnectInputSelector(QGstPipeline &pipeline, QGstElement sink);
-        void removeInputSelector(QGstPipeline &pipeline);
-
-        void connectInputSelector(QGstPipeline &pipeline, QGstElement, bool inHandler);
-
-        int selectedInputIndex = -1;
-
-        QGstElement inputSelector;
-        QGstElement connectedSink;
-        QGstElement dummySink;
-
-        TrackType type;
-        QList<QByteArray> streams;
-        std::map<QByteArray, QMediaMetaData, std::less<>> metaData;
-        std::map<QByteArray, QGstPad, std::less<>> pads;
-        std::map<QByteArray, QSize, std::less<>> nativeSize;
-        std::map<QGstPad, QGstPad, std::less<>> connectionMap; // decoderPad->inputSelectorPad
-
-        bool inputSelectorInPipeline = false;
-    };
-    using LockType = std::unique_lock<QMutex>;
-
-    void connectTrackSelectorToOutput(TrackSelector &, bool inHandler = false);
-    void disconnectTrackSelectorFromOutput(TrackSelector &, bool inHandler = false);
-    void disconnectAllTrackSelectors();
-    void setActivePad(TrackSelector &, const QGstPad &pad, bool flush = true);
-
-    TrackSelector &trackSelector(TrackType type);
-    void updateTrackMetadata(const QGstStreamCollectionHandle &);
-    void prepareTrackMetadata(const QGstStreamCollectionHandle &, const LockType &);
-
-    mutable QMutex trackSelectorsMutex;
-    std::array<TrackSelector, NTrackTypes> trackSelectors;
-
-    void stopOrEOS(bool eos);
-    void detectPipelineIsSeekable(std::optional<std::chrono::nanoseconds> timeout);
+    static void sourceSetupCallback(GstElement *uridecodebin, GstElement *source,
+                                    QGstreamerMediaPlayer *);
     bool hasMedia() const;
+    bool hasValidMedia() const;
 
-    std::chrono::nanoseconds pipelinePosition() const;
     void updatePositionFromPipeline();
-    std::optional<std::chrono::milliseconds> updateDurationFromPipeline();
     void updateBufferProgress(float);
-
-    QGstElement getSinkElementForTrackType(TrackType);
-
-    QMediaMetaData m_metaData;
 
     QUrl m_url;
     QIODevice *m_stream = nullptr;
@@ -152,79 +105,49 @@ private:
         ErrorReported,
     };
 
-    bool m_prerolling = false; // pipeline did not enter PAUSED state or higher
-    bool m_waitingForStreams = false; // GST_MESSAGE_STREAM_START not yet received
-    bool m_playerReady = false; // player is ready when it's done prerolling & streams are selected
-
-    bool m_initialBufferProgressSent = false;
     ResourceErrorState m_resourceErrorState = ResourceErrorState::NoError;
-    float m_rate = 1.f;
     float m_bufferProgress = 0.f;
     std::chrono::milliseconds m_duration{};
-    QTimer positionUpdateTimer;
-
-    // Gst elements
-    QGstPipeline playerPipeline;
-    QGstElement decoder;
-    QGstElement fakeAudioSink = QGstElement::createFromFactory("fakesink", "fakeAudioSink");
 
     QGstreamerAudioOutput *gstAudioOutput = nullptr;
     QGstreamerVideoOutput *gstVideoOutput = nullptr;
 
-    // Message handler
+    // // Message handler
     bool processBusMessage(const QGstreamerMessage &message) override;
-    bool processBusMessageTags(const QGstreamerMessage &);
-    bool processBusMessageDurationChanged(const QGstreamerMessage &);
-    bool processBusMessageEOS(const QGstreamerMessage &);
-    bool processBusMessageBuffering(const QGstreamerMessage &);
-    bool processBusMessageStateChanged(const QGstreamerMessage &);
-    bool processBusMessageError(const QGstreamerMessage &);
-    bool processBusMessageWarning(const QGstreamerMessage &);
-    bool processBusMessageInfo(const QGstreamerMessage &);
-    bool processBusMessageSegmentStart(const QGstreamerMessage &);
-    bool processBusMessageSegmentDone(const QGstreamerMessage &);
-    bool processBusMessageElement(const QGstreamerMessage &);
-    bool processBusMessageAsyncDone(const QGstreamerMessage &);
-    bool processBusMessageLatency(const QGstreamerMessage &);
-    bool processBusMessageStreamStart(const QGstreamerMessage &);
-    bool processBusMessageStreamCollection(const QGstreamerMessage &);
-    bool processBusMessageStreamsSelected(const QGstreamerMessage &);
+    bool processBusMessageApplication(const QGstreamerMessage &message);
 
-    bool processSyncMessage(const QGstreamerMessage &) override;
-    bool processSyncMessageStreamCollection(const QGstreamerMessage &);
-
-    void finalizePreroll();
-
-    // gstreamer signals
-    void decoderPadAdded(const QGstElement &src, const QGstPad &pad);
-    void decoderPadRemoved(const QGstElement &src, const QGstPad &pad);
-    static void sourceSetupCallback(GstElement *uridecodebin, GstElement *source,
-                                    QGstreamerMediaPlayer *);
-    static gint s_decodebin3SelectStream(GstElement *decodebin, GstStreamCollection *collection,
-                                         GstStream *stream, QGstreamerMediaPlayer *self);
-
+    // decoder connections
     void disconnectDecoderHandlers();
-
-    QGObjectHandlerScopedConnection padAdded;
-    QGObjectHandlerScopedConnection padRemoved;
     QGObjectHandlerScopedConnection sourceSetup;
-    QGObjectHandlerScopedConnection selectStream;
 
-    // media state handling, stalled media detection
-    void mediaStatusChanged(QMediaPlayer::MediaStatus status);
-    static constexpr auto stalledMediaDebouncePeriod = std::chrono::milliseconds{ 500 };
-    QTimer m_stalledMediaNotifier;
+    bool discover(const QUrl &);
 
-    // pending state changes
-    void applyPendingOperations(bool inTimer = false);
-    using PlaybackState = QMediaPlayer::PlaybackState;
+    // play
+    QGstPlayHandle m_gstPlay;
 
-    std::optional<std::chrono::nanoseconds> m_pendingSeekPosition;
-    std::optional<float> m_pendingRate;
-    std::optional<PlaybackState> m_pendingState;
+    QGstPipeline m_playbin;
 
-    QElapsedTimer m_seekTimer;
-    QTimer m_seekRateLimiter;
+    QGstBusObserver m_gstPlayBus;
+
+    // metadata
+    QMediaMetaData m_metaData;
+    std::array<std::vector<QMediaMetaData>, 3> m_trackMetaData;
+    std::array<std::vector<QByteArray>, 3> m_trackIDs;
+    std::array<int, 3> m_activeTrack{};
+    QList<QSize> m_nativeSize;
+
+    void resetStateForEmptyOrInvalidMedia();
+    void updateNativeSizeOnVideoOutput();
+
+    void seekToCurrentPosition();
+
+    std::optional<std::chrono::nanoseconds> m_pendingSeek;
+
+    int stateChangeToSkip = 0;
+
+    void updateVideoTrackEnabled();
+    void updateAudioTrackEnabled();
+    void updateSubtitleTrackEnabled();
 };
 
 QT_END_NAMESPACE

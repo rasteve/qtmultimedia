@@ -15,6 +15,7 @@ qt_internal_add_module(QGstreamerMediaPluginImplPrivate
         common/qgst_debug.cpp common/qgst_debug_p.h
         common/qgst_discoverer.cpp common/qgst_discoverer_p.h
         common/qgst_handle_types_p.h
+        common/qgst_play.cpp common/qgst_play_p.h
         common/qgstreameraudioinput.cpp common/qgstreameraudioinput_p.h
         common/qgstreameraudiooutput.cpp common/qgstreameraudiooutput_p.h
         common/qgstreamerbufferprobe.cpp common/qgstreamerbufferprobe_p.h
@@ -55,6 +56,7 @@ qt_internal_add_module(QGstreamerMediaPluginImplPrivate
         Qt::CorePrivate
         GStreamer::GStreamer
         GStreamer::App
+        GStreamer::Play
 )
 
 qt_internal_extend_target(QGstreamerMediaPluginImplPrivate CONDITION QT_FEATURE_gstreamer_photography
