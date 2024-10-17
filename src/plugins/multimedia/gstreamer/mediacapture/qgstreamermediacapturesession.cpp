@@ -445,7 +445,12 @@ void QGstreamerMediaCaptureSession::setAudioInput(QPlatformAudioInput *input)
 
 void QGstreamerMediaCaptureSession::setVideoPreview(QVideoSink *sink)
 {
+    auto *gstSink = sink ? static_cast<QGstreamerVideoSink *>(sink->platformVideoSink()) : nullptr;
+    if (gstSink)
+        gstSink->setAsync(false);
+
     gstVideoOutput->setVideoSink(sink);
+    capturePipeline.dumpGraph("setVideoPreview");
 }
 
 void QGstreamerMediaCaptureSession::setAudioOutput(QPlatformAudioOutput *output)
