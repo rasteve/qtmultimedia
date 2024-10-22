@@ -48,12 +48,8 @@ public:
     explicit QAVFCamera(QCamera *parent);
     ~QAVFCamera();
 
-    bool isActive() const override;
-    void setActive(bool active) override;
-
     void setCaptureSession(QPlatformMediaCaptureSession *) override;
 
-    void setCamera(const QCameraDevice &camera) override;
     bool setCameraFormat(const QCameraFormat &format) override;
 
     std::optional<int> ffmpegHWPixelFormat() const override;
@@ -63,8 +59,11 @@ public:
 
     QVideoFrameFormat frameFormat() const override;
 
+protected:
+    void onActiveChanged(bool active) override;
+    void onCameraDeviceChanged(const QCameraDevice &device) override;
+
 private:
-    bool checkCameraPermission();
     void updateCameraFormat();
     void updateVideoInput();
     void attachVideoInputDevice();
