@@ -116,15 +116,15 @@ QAndroidCamera::~QAndroidCamera()
 
 void QAndroidCamera::setCamera(const QCameraDevice &camera)
 {
-    const bool active = isActive();
-    if (active)
+    const bool oldActive = isActive();
+    if (oldActive)
         setActive(false);
 
     m_cameraDevice = camera;
     updateCameraCharacteristics();
     m_cameraFormat = getDefaultCameraFormat(camera);
 
-    if (active)
+    if (oldActive)
         setActive(true);
 }
 
@@ -368,37 +368,67 @@ void QAndroidCamera::updateCameraCharacteristics()
         return;
     }
 
-    float maxZoom = 1.0;
-    float minZoom = 1.0;
-    const auto zoomRange = deviceManager.callMethod<jfloat[]>(
-                "getZoomRange", QJniObject::fromString(m_cameraDevice.id()).object<jstring>());
-    if (zoomRange.isValid() && zoomRange.size() == 2) {
-        minZoom = zoomRange[0];
-        maxZoom = zoomRange[1];
-    }
 
-    maximumZoomFactorChanged(maxZoom);
-    minimumZoomFactorChanged(minZoom);
-    if (maxZoom < zoomFactor()) {
-        zoomTo(1.0, -1.0);
+    // Gather capabilities.
+    float newMaxZoom = 1.f;
+    float newMinZoom = 1.f;
+    const auto newZoomRange = deviceManager.callMethod<jfloat[]>(
+        "getZoomRange",
+        QJniObject::fromString(m_cameraDevice.id()).object<jstring>());
+    if (newZoomRange.isValid() && newZoomRange.size() == 2) {
+        newMinZoom = newZoomRange[0];
+        newMaxZoom = newZoomRange[1];
+    } else {
+        qCDebug(qLCAndroidCamera) <<
+            "received invalid float array when querying zoomRange from Android Camera2. "
+            "Likely Qt developer bug";
     }
-
-    m_TorchModeSupported = deviceManager.callMethod<jboolean>(
-            "isTorchModeSupported", QJniObject::fromString(m_cameraDevice.id()).object<jstring>());
 
     m_supportedFlashModes.clear();
     m_supportedFlashModes.append(QCamera::FlashOff);
     const QStringList flashModes = deviceManager.callMethod<QStringList>(
-            "getSupportedFlashModes",
-            QJniObject::fromString(m_cameraDevice.id()).object<jstring>());
+        "getSupportedFlashModes",
+        QJniObject::fromString(m_cameraDevice.id()).object<jstring>());
     for (const auto &flashMode : flashModes) {
         if (flashMode == QLatin1String("auto"))
             m_supportedFlashModes.append(QCamera::FlashAuto);
         else if (flashMode == QLatin1String("on"))
             m_supportedFlashModes.append(QCamera::FlashOn);
     }
+
+    m_TorchModeSupported = deviceManager.callMethod<jboolean>(
+            "isTorchModeSupported", QJniObject::fromString(m_cameraDevice.id()).object<jstring>());
+
+    minimumZoomFactorChanged(newMinZoom);
+    maximumZoomFactorChanged(newMaxZoom);
+
+
+    // Apply properties
+    if (minZoomFactor() < maxZoomFactor()) {
+        // New device supports zooming. Clamp it and apply it to new camera device.
+        const float newZoomFactor = qBound(zoomFactor(), minZoomFactor(), maxZoomFactor());
+        zoomTo(newZoomFactor, -1);
+    }
+
+    if (isFlashModeSupported(flashMode()))
+        setFlashMode(flashMode());
+
+    if (isTorchModeSupported(torchMode()))
+        setTorchMode(torchMode());
+
+
+    // Reset properties if needed.
+    if (minZoomFactor() >= maxZoomFactor())
+        zoomFactorChanged(defaultZoomFactor());
+
+    if (!isFlashModeSupported(flashMode()))
+        flashModeChanged(defaultFlashMode());
+
+    if (!isTorchModeSupported(torchMode()))
+        torchModeChanged(defaultTorchMode());
 }
 
+// Should only be called when the camera device is set to null.
 void QAndroidCamera::cleanCameraCharacteristics()
 {
     maximumZoomFactorChanged(1.0);
@@ -480,7 +510,10 @@ void QAndroidCamera::setTorchMode(QCamera::TorchMode mode)
 void QAndroidCamera::zoomTo(float factor, float rate)
 {
     Q_UNUSED(rate);
-    m_jniCamera.callMethod<void>("zoomTo", factor);
+
+    if (!m_cameraDevice.id().isEmpty()) {
+        m_jniCamera.callMethod<void>("zoomTo", factor);
+    }
     zoomFactorChanged(factor);
 }
 
