@@ -11,6 +11,8 @@ QT_BEGIN_NAMESPACE
 
 bool copyAllFiles(const QDir &source, const QDir &dest)
 {
+    using namespace Qt::Literals;
+
     if (!source.exists() || !dest.exists())
         return false;
 
@@ -18,7 +20,7 @@ bool copyAllFiles(const QDir &source, const QDir &dest)
     while (it.hasNext()) {
         QFileInfo file{ it.next() };
         if (file.isFile()) {
-            const QString destination = dest.absolutePath() + "/" + file.fileName();
+            const QString destination = dest.absolutePath() + u"/"_s + file.fileName();
             QFile::copy(file.absoluteFilePath(), destination);
         }
     }
