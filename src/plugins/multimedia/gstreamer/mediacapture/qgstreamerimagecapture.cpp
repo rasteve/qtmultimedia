@@ -127,6 +127,7 @@ QGstreamerImageCapture::QGstreamerImageCapture(QImageCapture *parent)
     addProbeToPad(queue.staticPad("src").pad(), false);
 
     sink.set("signal-handoffs", true);
+    sink.set("async", false);
     m_handoffConnection = sink.connect("handoff", G_CALLBACK(&saveImageFilter), this);
 }
 

@@ -1460,6 +1460,10 @@ void QGstreamerMediaPlayer::setAudioOutput(QPlatformAudioOutput *output)
     if (gstAudioOutput == output)
         return;
 
+    auto *gstOutput = static_cast<QGstreamerAudioOutput *>(output);
+    if (gstOutput)
+        gstOutput->setAsync(true);
+
     std::unique_lock lock{
         trackSelectorsMutex,
     };
