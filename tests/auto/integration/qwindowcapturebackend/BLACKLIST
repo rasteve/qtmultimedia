@@ -9,3 +9,13 @@ android ci
 #QTBUG-111190, v4l2m2m issues
 [recorder_encodesFrames_toValidMediaFile_whenWindowResizes]
 android ci
+
+#QTBUG-130719 on Windows
+[capturedImage_equals_imageFromGrab]
+windows ci
+[capturedImage_changes_whenWindowContentChanges]
+windows ci
+[windowCapture_capturesWindowsInOtherProcesses]
+windows ci
+[sequenceOfCapturedImages_compareEqual_whenWindowContentIsUnchanged]
+windows ci
