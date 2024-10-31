@@ -106,6 +106,10 @@ if (QT_FEATURE_pipewire)
             qpipewirecapture.cpp qpipewirecapture_p.h
             qpipewirecapturehelper.cpp qpipewirecapturehelper_p.h
             symbolstubs/qffmpegsymbols-pipewire.cpp
+
+        NO_UNITY_BUILD_SOURCES
+            # conflict with qffmpegsymbols-va.cpp: class SymbolsResolverImpl
+            symbolstubs/qffmpegsymbols-pipewire.cpp
         LIBRARIES
             Qt::DBus
     )
