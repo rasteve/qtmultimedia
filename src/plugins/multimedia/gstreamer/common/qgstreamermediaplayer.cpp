@@ -331,7 +331,7 @@ void QGstreamerMediaPlayer::applyPendingOperations(bool inTimer)
             }
         }
 
-        qCDebug(qLcMediaPlayer) << "applyPendingOperations" << m_pendingSeekPosition
+        qCDebug(qLcMediaPlayer) << "applyPendingOperations: seek" << m_pendingSeekPosition
                                 << m_pendingRate;
 
         if (m_pendingSeekPosition && m_pendingRate)
@@ -347,6 +347,8 @@ void QGstreamerMediaPlayer::applyPendingOperations(bool inTimer)
     }
 
     if (m_pendingState) {
+        qCDebug(qLcMediaPlayer) << "applyPendingOperations: apply pipeline state" << m_pendingState;
+
         gstVideoOutput->setActive(m_pendingState.value() > PlaybackState::StoppedState);
 
         switch (*m_pendingState) {
@@ -1333,6 +1335,8 @@ void QGstreamerMediaPlayer::finalizePreroll()
     }
 
     m_playerReady = true;
+
+    applyPendingOperations(/*inTimer=*/false);
 }
 
 void QGstreamerMediaPlayer::setMedia(const QUrl &content, QIODevice *stream)
