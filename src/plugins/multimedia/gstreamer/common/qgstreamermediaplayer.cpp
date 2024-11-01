@@ -463,6 +463,8 @@ QGstreamerMediaPlayer::~QGstreamerMediaPlayer()
 {
     playerPipeline.removeMessageFilter(static_cast<QGstreamerBusMessageFilter *>(this));
     playerPipeline.removeMessageFilter(static_cast<QGstreamerSyncMessageFilter *>(this));
+
+    playerPipeline.setStateSync(GST_STATE_READY);
     playerPipeline.setStateSync(GST_STATE_NULL);
 }
 

@@ -135,6 +135,7 @@ QGstreamerMediaCaptureSession::~QGstreamerMediaCaptureSession()
     setImageCapture(nullptr);
     setCamera(nullptr);
     capturePipeline.removeMessageFilter(static_cast<QGstreamerBusMessageFilter *>(this));
+    capturePipeline.setStateSync(GST_STATE_READY);
     capturePipeline.setStateSync(GST_STATE_NULL);
 }
 
