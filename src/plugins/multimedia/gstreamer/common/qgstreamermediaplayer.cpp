@@ -1444,6 +1444,8 @@ void QGstreamerMediaPlayer::setMedia(const QUrl &content, QIODevice *stream)
     }
 
     mediaStatusChanged(QMediaPlayer::LoadingMedia);
+    playerPipeline.setStateSync(GST_STATE_PAUSED);
+    playerPipeline.setPosition(0ns, /*flush=*/false);
 
     if (!playerPipeline.setStateSync(GST_STATE_PAUSED)) {
         qCWarning(qLcMediaPlayer) << "Unable to set the pipeline to the paused state.";
@@ -1455,7 +1457,6 @@ void QGstreamerMediaPlayer::setMedia(const QUrl &content, QIODevice *stream)
         return;
     }
 
-    m_pendingSeekPosition = 0ns;
     resetMetadata.dismiss();
 }
 
@@ -1510,7 +1511,12 @@ void QGstreamerMediaPlayer::setVideoSink(QVideoSink *sink)
     using namespace std::chrono_literals;
     gstVideoOutput->setVideoSink(sink);
 
-    playerPipeline.flush(); // ensure that we send the current video frame to the new sink
+    if (sink && state() != QMediaPlayer::StoppedState) {
+        if (!m_pendingSeekPosition) {
+            m_pendingSeekPosition = playerPipeline.position();
+            applyPendingOperations();
+        }
+    }
     playerPipeline.dumpGraph("setVideoSink");
 }
 
