@@ -18,6 +18,7 @@
 #include <QtCore/qdebug.h>
 #include <QtCore/qiodevice.h>
 #include <QtCore/qloggingcategory.h>
+#include <QtCore/qthread.h>
 #include <QtCore/qurl.h>
 #include <QtCore/private/quniquehandle_p.h>
 
