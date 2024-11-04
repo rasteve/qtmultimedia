@@ -1,5 +1,7 @@
 // Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only
+
+import QtCore
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Dialogs
@@ -13,8 +15,13 @@ ApplicationWindow {
     visible: true
     title: qsTr("QmlMinimalSoundEffect")
 
+    MediaDevices {
+        id: mediaDevices
+    }
+
     SoundEffect {
         id: effect
+        audioDevice: mediaDevices.defaultAudioOutput
         source: "qrc:/double-drop.wav"
     }
 
@@ -28,6 +35,25 @@ ApplicationWindow {
             Action {
                 text: qsTr("&Default sound")
                 onTriggered: effect.source = "qrc:/double-drop.wav"
+            }
+        }
+        Menu {
+            id: audioOutputMenu
+            title: qsTr("&Output")
+
+            Instantiator {
+                id: audioDevices
+                model: mediaDevices.audioOutputs
+                delegate: MenuItem {
+                    checkable: true
+                    checked: effect.audioDevice == device
+                    autoExclusive: true
+                    property var device: model.modelData
+                    text: device.description
+                    onTriggered: effect.audioDevice = device
+                }
+                onObjectAdded: (index, object) => audioOutputMenu.insertItem(index, object)
+                onObjectRemoved: (index, object) => audioOutputMenu.removeItem(object)
             }
         }
     }
