@@ -43,9 +43,7 @@ QGstDiscovererStreamInfo parseGstDiscovererStreamInfo(GstDiscovererStreamInfo *i
     result.streamID = QString::fromUtf8(gst_discoverer_stream_info_get_stream_id(info));
     result.tags = duplicateTagList(gst_discoverer_stream_info_get_tags(info));
 
-#if GST_CHECK_VERSION(1, 20, 0)
     result.streamNumber = gst_discoverer_stream_info_get_stream_number(info);
-#endif
 
     result.caps = QGstCaps{
         gst_discoverer_stream_info_get_caps(info),
@@ -127,9 +125,7 @@ QGstDiscovererContainerInfo parseGstDiscovererContainerInfo(GstDiscovererContain
     QGstDiscovererContainerInfo result;
     static_cast<QGstDiscovererStreamInfo &>(result) = parseGstDiscovererStreamInfo(info);
 
-#if GST_CHECK_VERSION(1, 20, 0)
     result.tags = duplicateTagList(gst_discoverer_container_info_get_tags(info));
-#endif
 
     return result;
 }
@@ -146,12 +142,10 @@ QGstDiscovererInfo parseGstDiscovererInfo(GstDiscovererInfo *info)
     if (duration != GST_CLOCK_TIME_NONE)
         result.duration = std::chrono::nanoseconds{ duration };
 
-#if GST_CHECK_VERSION(1, 20, 0)
     GstDiscovererStreamInfo *streamInfo = gst_discoverer_info_get_stream_info(info);
     if (streamInfo && GST_IS_DISCOVERER_CONTAINER_INFO(streamInfo))
         result.containerInfo =
                 parseGstDiscovererContainerInfo(GST_DISCOVERER_CONTAINER_INFO(streamInfo));
-#endif
     result.tags = duplicateTagList(gst_discoverer_info_get_tags(info));
 
     GstDiscovererStreamInfoList<GstDiscovererVideoInfo> videoStreams{
@@ -234,11 +228,9 @@ QMediaMetaData toContainerMetadata(const QGstDiscovererInfo &info)
     using Key = QMediaMetaData::Key;
     using namespace std::chrono;
 
-#if GST_CHECK_VERSION(1, 20, 0)
     if (info.containerInfo)
         extendMetaDataFromTagList(metadata, info.containerInfo->tags);
     else
-#endif
         extendMetaDataFromTagList(metadata, info.tags);
 
     auto updateMetadata = [&](Key key, auto value) {

@@ -92,9 +92,7 @@ struct QGstDiscovererInfo
     bool isSeekable{};
     std::optional<std::chrono::nanoseconds> duration;
 
-#if GST_CHECK_VERSION(1, 20, 0)
     std::optional<QGstDiscovererContainerInfo> containerInfo;
-#endif
     QGstTagListHandle tags;
     std::vector<QGstDiscovererVideoInfo> videoStreams;
     std::vector<QGstDiscovererAudioInfo> audioStreams;

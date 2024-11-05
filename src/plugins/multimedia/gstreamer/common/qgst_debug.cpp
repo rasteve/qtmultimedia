@@ -80,17 +80,10 @@ QDebug operator<<(QDebug dbg, const GstCaps *caps)
 
 QDebug operator<<(QDebug dbg, const GstVideoInfo *info)
 {
-#if GST_CHECK_VERSION(1, 20, 0)
     return dbg << QGstCaps{
         gst_video_info_to_caps(info),
         QGstCaps::NeedsRef,
     };
-#else
-    return dbg << QGstCaps{
-        gst_video_info_to_caps(const_cast<GstVideoInfo *>(info)),
-        QGstCaps::NeedsRef,
-    };
-#endif
 }
 
 QDebug operator<<(QDebug dbg, const GstStructure *structure)

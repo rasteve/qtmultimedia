@@ -11,41 +11,46 @@
 
 qt_find_package(ALSA PROVIDED_TARGETS ALSA::ALSA MODULE_NAME multimedia QMAKE_LIB alsa)
 qt_find_package(AVFoundation PROVIDED_TARGETS AVFoundation::AVFoundation MODULE_NAME multimedia QMAKE_LIB avfoundation)
-qt_find_package(GStreamer 1.18
+qt_find_package(GStreamer 1.20
     PROVIDED_TARGETS GStreamer::GStreamer
     MODULE_NAME multimedia
     QMAKE_LIB gstreamer_1_0)
-qt_find_package(GStreamer 1.18
+qt_find_package(GStreamer 1.20
     COMPONENTS App
     PROVIDED_TARGETS GStreamer::App
     MODULE_NAME multimedia
     QMAKE_LIB gstreamer_app_1_0)
+qt_find_package(GStreamer
+    COMPONENTS Play
+    PROVIDED_TARGETS GStreamer::Play
+    MODULE_NAME multimedia
+    QMAKE_LIB gstreamer_play_1_0)
 qt_add_qmake_lib_dependency(gstreamer_app_1_0 gstreamer_1_0)
-qt_find_package(GStreamer 1.18
+qt_find_package(GStreamer 1.20
     OPTIONAL_COMPONENTS Photography
     PROVIDED_TARGETS GStreamer::Photography
     MODULE_NAME multimedia
     QMAKE_LIB gstreamer_photography_1_0) # special case
 qt_add_qmake_lib_dependency(gstreamer_photography_1_0 gstreamer_1_0)
-qt_find_package(GStreamer 1.18
+qt_find_package(GStreamer 1.20
     OPTIONAL_COMPONENTS Gl
     PROVIDED_TARGETS GStreamer::Gl
     MODULE_NAME multimedia
     QMAKE_LIB gstreamer_gl_1_0) # special case
 qt_add_qmake_lib_dependency(gstreamer_gl_1_0 gstreamer_1_0)
-qt_find_package(GStreamer 1.18
+qt_find_package(GStreamer 1.20
     OPTIONAL_COMPONENTS GlWayland
     PROVIDED_TARGETS GStreamer::GlWayland
     MODULE_NAME multimedia
     QMAKE_LIB gstreamer_gl_wayland_1_0) # special case
 qt_add_qmake_lib_dependency(gstreamer_gl_wayland_1_0 gstreamer_1_0)
-qt_find_package(GStreamer 1.18
+qt_find_package(GStreamer 1.20
     OPTIONAL_COMPONENTS GlEgl
     PROVIDED_TARGETS GStreamer::GlEgl
     MODULE_NAME multimedia
     QMAKE_LIB gstreamer_gl_egl_1_0) # special case
 qt_add_qmake_lib_dependency(gstreamer_gl_egl_1_0 gstreamer_1_0)
-qt_find_package(GStreamer 1.18
+qt_find_package(GStreamer 1.20
     OPTIONAL_COMPONENTS GlX11
     PROVIDED_TARGETS GStreamer::GlX11
     MODULE_NAME multimedia
@@ -280,26 +285,3 @@ qt_configure_add_report_entry(
     MESSAGE "No media backend found"
     CONDITION LINUX AND NOT (QT_FEATURE_gstreamer OR QT_FEATURE_ffmpeg)
 )
-
-if (TARGET GStreamer::GStreamer)
-    qt_config_compile_test(gstreamer_version_check
-        LABEL "GStreamer minimum version test"
-        LIBRARIES
-            GStreamer::Core
-        CODE
-    "#include <gst/gstversion.h>
-
-    static_assert(GST_CHECK_VERSION(1, 20, 0), \"Minimum required GStreamer version is 1.20\");
-
-    int main()
-    {
-        return 0;
-    }"
-    )
-
-    qt_configure_add_report_entry(
-        TYPE WARNING
-        MESSAGE "Minimum required GStreamer version is 1.20."
-        CONDITION QT_FEATURE_gstreamer AND NOT TEST_gstreamer_version_check
-    )
-endif()

@@ -1046,11 +1046,7 @@ QGstPad QGstElement::sink() const
 
 QGstPad QGstElement::getRequestPad(const char *name) const
 {
-#if GST_CHECK_VERSION(1, 19, 1)
     return QGstPad(gst_element_request_pad_simple(element(), name), HasRef);
-#else
-    return QGstPad(gst_element_get_request_pad(element(), name), HasRef);
-#endif
 }
 
 void QGstElement::releaseRequestPad(const QGstPad &pad) const
