@@ -86,7 +86,7 @@ private:
     \l QMediaRecorder to a \l QMediaCaptureSession. For a pull mode implementation,
     call \l sendAudioBuffer() in response to the \l readyToSendAudioBuffer() signal.
     In the snippet below this is done by connecting the signal to a slot in a custom
-    media generator class. The slot function emits a another signal with a new audio
+    media generator class. The slot function emits another signal with a new audio
     buffer, which is connected to  \l sendAudioBuffer():
 
     \snippet custommediainputsnippets/custommediainputsnippets.cpp QAudioBufferInput setup

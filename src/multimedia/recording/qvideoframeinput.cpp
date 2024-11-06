@@ -80,7 +80,7 @@ private:
     \l QMediaRecorder to a \l QMediaCaptureSession. For a pull mode implementation,
     call \l sendVideoFrame() in response to the \l readyToSendVideoFrame() signal. In
     the snippet below this is done by connecting the signal to a slot in a custom media
-    generator class. The slot function emits a another signal with a new video frame, which
+    generator class. The slot function emits another signal with a new video frame, which
     is connected to \l sendVideoFrame():
 
     \snippet custommediainputsnippets/custommediainputsnippets.cpp QVideoFrameInput setup
