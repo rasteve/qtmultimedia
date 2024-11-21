@@ -397,20 +397,15 @@ void AVFAudioDecoder::onFinished()
         finished();
 }
 
-void AVFAudioDecoder::initAssetReader()
+void AVFAudioDecoder::initAssetReaderImpl(AVAssetTrack *track, NSError *error)
 {
-    qCDebug(qLcAVFAudioDecoder()) << "Init asset reader";
+    Q_ASSERT(track != nullptr);
 
-    Q_ASSERT(m_asset);
-    Q_ASSERT(QThread::currentThread() == thread());
-
-    NSArray<AVAssetTrack *> *tracks = [m_asset tracksWithMediaType:AVMediaTypeAudio];
-    if (!tracks.count) {
-        processInvalidMedia(QAudioDecoder::FormatError, tr("No audio tracks found"));
+    if (error) {
+        processInvalidMedia(QAudioDecoder::ResourceError, QString::fromNSString(error.localizedDescription));
         return;
     }
 
-    AVAssetTrack *track = [tracks objectAtIndex:0];
     QAudioFormat format = m_format.isValid() ? m_format : qt_format_for_audio_track(track);
     if (!format.isValid()) {
         processInvalidMedia(QAudioDecoder::FormatError, tr("Unsupported source format"));
@@ -419,7 +414,6 @@ void AVFAudioDecoder::initAssetReader()
 
     durationChanged(CMTimeGetSeconds(track.timeRange.duration) * 1000);
 
-    NSError *error = nil;
     NSDictionary *audioSettings = av_audio_settings_for_format(format);
 
     AVAssetReaderTrackOutput *readerOutput =
@@ -441,6 +435,30 @@ void AVFAudioDecoder::initAssetReader()
     m_decodingContext->m_readerOutput = readerOutput;
 
     startReading();
+}
+
+void AVFAudioDecoder::initAssetReader()
+{
+    qCDebug(qLcAVFAudioDecoder()) << "Init asset reader";
+
+    Q_ASSERT(m_asset);
+    Q_ASSERT(QThread::currentThread() == thread());
+
+#if defined(Q_OS_VISIONOS)
+    [m_asset loadTracksWithMediaType:AVMediaTypeAudio completionHandler:[=](NSArray<AVAssetTrack *> *tracks, NSError *error) {
+                       if (tracks && tracks.count > 0) {
+                           if (AVAssetTrack *track = [tracks objectAtIndex:0])
+                               QMetaObject::invokeMethod(this, &AVFAudioDecoder::initAssetReaderImpl, Qt::QueuedConnection, track, error);
+                       }
+    }];
+#else
+    NSArray<AVAssetTrack *> *tracks = [m_asset tracksWithMediaType:AVMediaTypeAudio];
+    if (tracks && tracks.count > 0) {
+        if (AVAssetTrack *track = [tracks objectAtIndex:0])
+            initAssetReaderImpl(track, nullptr /*error*/);
+    }
+#endif
+
 }
 
 void AVFAudioDecoder::startReading()

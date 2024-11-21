@@ -143,7 +143,7 @@ static QRhi *initializeRHI(QRhi *videoFrameRhi)
 
     if (qpa && qpa->hasCapability(QPlatformIntegration::RhiBasedRendering)) {
 
-#if defined(Q_OS_MACOS) || defined(Q_OS_IOS)
+#if QT_CONFIG(metal)
         if (backend == QRhi::Metal || backend == QRhi::Null) {
             QRhiMetalInitParams params;
             g_state.localData().rhi = QRhi::create(QRhi::Metal, &params);

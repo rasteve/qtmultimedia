@@ -206,7 +206,7 @@ qt_internal_extend_target(Multimedia CONDITION MACOS
         darwin/qmacosaudiodatautils_p.h
 )
 
-qt_internal_extend_target(Multimedia CONDITION IOS OR TVOS
+qt_internal_extend_target(Multimedia CONDITION IOS OR TVOS OR VISIONOS
     SOURCES
         darwin/qcoreaudiosessionmanager.mm darwin/qcoreaudiosessionmanager_p.h
     LIBRARIES

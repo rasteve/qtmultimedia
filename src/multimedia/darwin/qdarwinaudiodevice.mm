@@ -5,7 +5,7 @@
 #include "qcoreaudioutils_p.h"
 #include <private/qcore_mac_p.h>
 
-#if defined(Q_OS_IOS)
+#if defined(QT_PLATFORM_UIKIT)
 #include "qcoreaudiosessionmanager_p.h"
 #else
 #include "qmacosaudiodatautils_p.h"

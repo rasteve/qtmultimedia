@@ -1169,12 +1169,24 @@ void AVFMediaPlayer::setActiveTrack(QPlatformMediaPlayer::TrackType type, int in
             AVAsset *asset = playerItem.asset;
             if (!asset)
                 return;
+#if defined(Q_OS_VISIONOS)
+            [asset loadMediaSelectionGroupForMediaCharacteristic:AVMediaCharacteristicLegible
+                                               completionHandler:[=](AVMediaSelectionGroup *group, NSError *error) {
+                                                   // FIXME: handle error
+                                                   if (error)
+                                                       return;
+                                                   auto *options = group.options;
+                                                   if (options.count)
+                                                       [playerItem selectMediaOption:options.firstObject inMediaSelectionGroup:group];
+                                               }];
+#else
             AVMediaSelectionGroup *group = [asset mediaSelectionGroupForMediaCharacteristic:AVMediaCharacteristicLegible];
             if (!group)
                 return;
             auto *options = group.options;
             if (options.count)
                 [playerItem selectMediaOption:options.firstObject inMediaSelectionGroup:group];
+#endif
         }
     }
     for (int i = 0; i < t.count(); ++i)

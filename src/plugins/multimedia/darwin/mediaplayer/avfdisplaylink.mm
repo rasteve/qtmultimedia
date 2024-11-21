@@ -8,7 +8,7 @@
 #include <QtCore/qdebug.h>
 #endif
 
-#if defined(Q_OS_IOS) || defined(Q_OS_TVOS)
+#if defined(QT_PLATFORM_UIKIT)
 #import <QuartzCore/CADisplayLink.h>
 #import <Foundation/NSRunLoop.h>
 #define _m_displayLink static_cast<DisplayLinkObserver*>(m_displayLink)
@@ -17,7 +17,7 @@
 
 QT_USE_NAMESPACE
 
-#if defined(Q_OS_IOS) || defined(Q_OS_TVOS)
+#if defined(QT_PLATFORM_UIKIT)
 @interface DisplayLinkObserver : NSObject
 
 - (void)start;
@@ -97,7 +97,7 @@ AVFDisplayLink::AVFDisplayLink(QObject *parent)
     , m_pendingDisplayLinkEvent(false)
     , m_isActive(false)
 {
-#if defined(Q_OS_IOS) || defined(Q_OS_TVOS)
+#if defined(QT_PLATFORM_UIKIT)
     m_displayLink = [[DisplayLinkObserver alloc] initWithAVFDisplayLink:this];
 #else
     // create display link for the main display
@@ -120,7 +120,7 @@ AVFDisplayLink::~AVFDisplayLink()
 
     if (m_displayLink) {
         stop();
-#if defined(Q_OS_IOS) || defined(Q_OS_TVOS)
+#if defined(QT_PLATFORM_UIKIT)
         [_m_displayLink release];
 #else
         CVDisplayLinkRelease(m_displayLink);
@@ -142,7 +142,7 @@ bool AVFDisplayLink::isActive() const
 void AVFDisplayLink::start()
 {
     if (m_displayLink && !m_isActive) {
-#if defined(Q_OS_IOS) || defined(Q_OS_TVOS)
+#if defined(QT_PLATFORM_UIKIT)
         [_m_displayLink start];
 #else
         CVDisplayLinkStart(m_displayLink);
@@ -154,7 +154,7 @@ void AVFDisplayLink::start()
 void AVFDisplayLink::stop()
 {
     if (m_displayLink && m_isActive) {
-#if defined(Q_OS_IOS) || defined(Q_OS_TVOS)
+#if defined(QT_PLATFORM_UIKIT)
         [_m_displayLink stop];
 #else
         CVDisplayLinkStop(m_displayLink);
@@ -172,7 +172,7 @@ void AVFDisplayLink::displayLinkEvent(const CVTimeStamp *ts)
     m_displayLinkMutex.lock();
     bool pending = m_pendingDisplayLinkEvent;
     m_pendingDisplayLinkEvent = true;
-#if defined(Q_OS_IOS) || defined(Q_OS_TVOS)
+#if defined(QT_PLATFORM_UIKIT)
     Q_UNUSED(ts);
     memset(&m_frameTimeStamp, 0, sizeof(CVTimeStamp));
 #else

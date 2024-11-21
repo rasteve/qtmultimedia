@@ -12,7 +12,7 @@
 
 #include <qdebug.h>
 
-#if defined(Q_OS_IOS)
+#if defined(QT_PLATFORM_UIKIT)
 #include "qcoreaudiosessionmanager_p.h"
 #import <AVFoundation/AVFoundation.h>
 #else
@@ -163,7 +163,7 @@ static void removeAudioListeners(QDarwinMediaDevices &instance)
     }
 }
 
-#elif defined(Q_OS_IOS)
+#elif defined(QT_PLATFORM_UIKIT)
 
 static QList<QAudioDevice> availableAudioDevices(QAudioDevice::Mode mode)
 {
@@ -172,6 +172,7 @@ static QList<QAudioDevice> availableAudioDevices(QAudioDevice::Mode mode)
     if (mode == QAudioDevice::Output) {
         devices.append(createAudioDevice(true, "default", QAudioDevice::Output));
     } else {
+#if !defined(Q_OS_VISIONOS)
         AVCaptureDevice *defaultDevice =
                 [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
 
@@ -190,6 +191,7 @@ static QList<QAudioDevice> availableAudioDevices(QAudioDevice::Mode mode)
                                              QString::fromNSString(device.uniqueID).toUtf8(),
                                              QAudioDevice::Input));
         }
+#endif
     }
 
     return devices;

@@ -40,7 +40,7 @@ qt_internal_add_plugin(QDarwinMediaPlugin
         AVFoundation::AVFoundation
 )
 
-qt_internal_extend_target(QDarwinMediaPlugin CONDITION NOT TVOS
+qt_internal_extend_target(QDarwinMediaPlugin CONDITION NOT TVOS AND NOT VISIONOS
     SOURCES
         camera/qavfcamerabase.mm camera/qavfcamerabase_p.h
         camera/avfcamera.mm camera/avfcamera_p.h
@@ -63,7 +63,7 @@ qt_internal_extend_target(QDarwinMediaPlugin CONDITION MACOS
         ${FWApplicationServices}
 )
 
-qt_internal_extend_target(QDarwinMediaPlugin CONDITION IOS
+qt_internal_extend_target(QDarwinMediaPlugin CONDITION IOS OR VISIONOS
     LIBRARIES
         ${FWCoreGraphics}
         ${FWCoreVideo}

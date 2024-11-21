@@ -18,7 +18,7 @@
 #include <QtCore/qobject.h>
 #include <QtCore/qmutex.h>
 
-#if defined(Q_OS_IOS) || defined(Q_OS_TVOS)
+#if defined(QT_PLATFORM_UIKIT)
 #include <CoreVideo/CVBase.h>
 #else
 #include <QuartzCore/CVDisplayLink.h>
@@ -49,7 +49,7 @@ protected:
     virtual bool event(QEvent *) override;
 
 private:
-#if defined(Q_OS_IOS) || defined(Q_OS_TVOS)
+#if defined(QT_PLATFORM_UIKIT)
     void *m_displayLink;
 #else
     CVDisplayLinkRef m_displayLink;

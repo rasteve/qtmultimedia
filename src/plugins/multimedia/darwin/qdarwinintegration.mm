@@ -3,17 +3,19 @@
 
 #include "qdarwinintegration_p.h"
 #include <avfmediaplayer_p.h>
+#if !defined(Q_OS_VISIONOS)
 #include <avfcameraservice_p.h>
 #include <avfcamera_p.h>
 #include <avfimagecapture_p.h>
 #include <avfmediaencoder_p.h>
+#include <qavfcamerabase_p.h>
+#endif
 #include <qdarwinformatsinfo_p.h>
 #include <avfvideosink_p.h>
 #include <avfaudiodecoder_p.h>
 #include <VideoToolbox/VideoToolbox.h>
 #include <qdebug.h>
 #include <private/qplatformmediaplugin_p.h>
-#include <qavfcamerabase_p.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -50,7 +52,11 @@ QPlatformMediaFormatInfo *QDarwinIntegration::createFormatInfo()
 
 QPlatformVideoDevices *QDarwinIntegration::createVideoDevices()
 {
+#if defined(Q_OS_VISIONOS)
+    return nullptr;
+#else
     return new QAVFVideoDevices(this);
+#endif
 }
 
 QMaybe<QPlatformAudioDecoder *> QDarwinIntegration::createAudioDecoder(QAudioDecoder *decoder)
@@ -60,7 +66,11 @@ QMaybe<QPlatformAudioDecoder *> QDarwinIntegration::createAudioDecoder(QAudioDec
 
 QMaybe<QPlatformMediaCaptureSession *> QDarwinIntegration::createCaptureSession()
 {
+#if defined(Q_OS_VISIONOS)
+    return nullptr;
+#else
     return new AVFCameraService;
+#endif
 }
 
 QMaybe<QPlatformMediaPlayer *> QDarwinIntegration::createPlayer(QMediaPlayer *player)
@@ -70,17 +80,32 @@ QMaybe<QPlatformMediaPlayer *> QDarwinIntegration::createPlayer(QMediaPlayer *pl
 
 QMaybe<QPlatformCamera *> QDarwinIntegration::createCamera(QCamera *camera)
 {
+#if defined(Q_OS_VISIONOS)
+    Q_UNUSED(camera);
+    return nullptr;
+#else
     return new AVFCamera(camera);
+#endif
 }
 
 QMaybe<QPlatformMediaRecorder *> QDarwinIntegration::createRecorder(QMediaRecorder *recorder)
 {
+#if defined(Q_OS_VISIONOS)
+    Q_UNUSED(recorder);
+    return nullptr;
+#else
     return new AVFMediaEncoder(recorder);
+#endif
 }
 
 QMaybe<QPlatformImageCapture *> QDarwinIntegration::createImageCapture(QImageCapture *imageCapture)
 {
+#if defined(Q_OS_VISIONOS)
+    Q_UNUSED(imageCapture);
+    return nullptr;
+#else
     return new AVFImageCapture(imageCapture);
+#endif
 }
 
 QMaybe<QPlatformVideoSink *> QDarwinIntegration::createVideoSink(QVideoSink *sink)
