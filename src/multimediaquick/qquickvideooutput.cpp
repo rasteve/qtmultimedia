@@ -217,6 +217,7 @@ void QQuickVideoOutput::_q_updateGeometry()
     This property determines the angle in, degrees, at which the displayed video
     is rotated clockwise in video coordinates, where the Y-axis points
     downwards on the display.
+    The orientation transformation is applied before \l mirorred.
 
     The orientation change affects the mapping of coordinates from the source to the viewport.
 
@@ -283,6 +284,34 @@ void QQuickVideoOutput::setOrientation(int orientation)
 
     update();
     emit orientationChanged();
+}
+
+/*!
+    \qmlproperty bool QtMultimedia::VideoOutput::mirrored
+    \since 6.9
+
+    Determines whether the displayed video is mirrored around its vertical axis.
+    We recommend using this property if the transformation of the source video stream,
+    such as from a front camera, does not align with the application's business logic.
+    The mirroring is applied after \l orientation.
+
+    The property change affects the mapping of coordinates from the source to the viewport.
+
+    The default value is \c false.
+*/
+bool QQuickVideoOutput::mirrored() const
+{
+    return m_mirrored;
+}
+
+void QQuickVideoOutput::setMirrored(bool mirrored)
+{
+    if (m_mirrored == mirrored)
+        return;
+    m_mirrored = mirrored;
+
+    update();
+    emit mirroredChanged();
 }
 
 /*!

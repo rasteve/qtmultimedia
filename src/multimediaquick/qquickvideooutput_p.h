@@ -55,6 +55,7 @@ class Q_MULTIMEDIAQUICK_EXPORT QQuickVideoOutput : public QQuickItem
     Q_DISABLE_COPY(QQuickVideoOutput)
     Q_PROPERTY(FillMode fillMode READ fillMode WRITE setFillMode NOTIFY fillModeChanged)
     Q_PROPERTY(int orientation READ orientation WRITE setOrientation NOTIFY orientationChanged)
+    Q_PROPERTY(bool mirrored READ mirrored WRITE setMirrored NOTIFY mirroredChanged)
     Q_PROPERTY(QRectF sourceRect READ sourceRect NOTIFY sourceRectChanged)
     Q_PROPERTY(QRectF contentRect READ contentRect NOTIFY contentRectChanged)
     Q_PROPERTY(QVideoSink* videoSink READ videoSink CONSTANT)
@@ -83,6 +84,9 @@ public:
     int orientation() const;
     void setOrientation(int);
 
+    bool mirrored() const;
+    void setMirrored(bool);
+
     QRectF sourceRect() const;
     QRectF contentRect() const;
 
@@ -90,6 +94,7 @@ Q_SIGNALS:
     void sourceChanged();
     void fillModeChanged(QQuickVideoOutput::FillMode);
     void orientationChanged();
+    void mirroredChanged();
     void sourceRectChanged();
     void contentRectChanged();
 
