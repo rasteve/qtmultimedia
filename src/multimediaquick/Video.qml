@@ -110,6 +110,7 @@ Item {
         This property determines the angle, in degrees, at which the displayed video
         is rotated clockwise in video coordinates, where the Y-axis points
         downwards on the display.
+        The orientation transformation is applied before \l mirorred.
 
         Only multiples of \c 90 degrees are supported, that is 0, 90, -90, 180, 270, etc.,
         otherwise, the specified value is ignored.
@@ -117,6 +118,16 @@ Item {
         The default value is \c 0.
     */
     property alias orientation:         videoOut.orientation
+
+
+    /*!
+        \qmlproperty int Video::mirrored
+
+        Determines whether the displayed video is mirrored around its vertical axis.
+        The mirroring is applied after \l orientation.
+        The default value is \c false.
+    */
+    property alias mirrored:         videoOut.mirrored
 
 
     /*** Properties of MediaPlayer ***/
