@@ -42,7 +42,8 @@ public:
     void setSurfaceFormat(const QRhiSwapChain::Format surfaceFormat);
     void setHdrInfo(const QRhiSwapChainHdrInfo &hdrInfo);
 
-    void setTexturedRectGeometry(const QRectF &boundingRect, const QRectF &textureRect, int orientation);
+    void setTexturedRectGeometry(const QRectF &boundingRect, const QRectF &textureRect,
+                                 VideoTransformation videoOutputTransformation);
 
 private:
     void updateSubtitle(const QVideoFrame &frame);
@@ -51,7 +52,7 @@ private:
     QQuickVideoOutput *m_parent = nullptr;
     QRectF m_rect;
     QRectF m_textureRect;
-    int m_orientation = -1;
+    VideoTransformation m_videoOutputTransformation;
     VideoTransformation m_frameTransformation;
 
     QVideoFrameFormat m_videoFormat;
