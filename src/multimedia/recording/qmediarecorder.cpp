@@ -121,9 +121,11 @@ QT_BEGIN_NAMESPACE
 */
 QMediaRecorderPrivate::QMediaRecorderPrivate()
 {
+#if QT_CONFIG(mimetype)
     // Force an early initialization of the mime database
     // to avoid a delay when recording for the first time.
     encoderSettings.mimeType();
+#endif
 }
 
 QString QMediaRecorderPrivate::msgFailedStartRecording()

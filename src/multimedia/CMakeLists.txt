@@ -115,7 +115,7 @@ qt_internal_add_module(Multimedia
 )
 
 qt_internal_extend_target(Multimedia
-    CONDITION LINUX OR ANDROID
+    CONDITION (LINUX OR ANDROID) AND QT_FEATURE_library
     SOURCES qsymbolsresolveutils.cpp qsymbolsresolveutils_p.h)
 
 qt_internal_add_simd_part(Multimedia SIMD sse2

@@ -4,7 +4,9 @@
 #include "qmediaformat.h"
 #include "private/qplatformmediaintegration_p.h"
 #include "private/qplatformmediaformatinfo_p.h"
+#if QT_CONFIG(mimetype)
 #include <QtCore/qmimedatabase.h>
+#endif
 
 QT_BEGIN_NAMESPACE
 
@@ -450,10 +452,12 @@ bool QMediaFormat::isSupported(ConversionMode mode) const
     Returns the \l{MIME type} for the file format used in this media format.
 */
 
+#if QT_CONFIG(mimetype)
 QMimeType QMediaFormat::mimeType() const
 {
     return QMimeDatabase().mimeTypeForName(QString::fromLatin1(mimeTypeForFormat[fmt + 1]));
 }
+#endif
 
 /*!
     \enum QMediaFormat::ConversionMode

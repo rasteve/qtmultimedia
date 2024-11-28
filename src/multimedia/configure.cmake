@@ -143,7 +143,7 @@ qt_feature("ffmpeg" PRIVATE
 qt_feature("pipewire" PRIVATE
     LABEL "PipeWire"
     ENABLE INPUT_pipewire STREQUAL 'yes'
-    CONDITION QT_FEATURE_dbus AND TARGET PipeWire::PipeWire
+    CONDITION QT_FEATURE_dbus AND QT_FEATURE_library AND TARGET PipeWire::PipeWire
 )
 qt_feature("alsa" PUBLIC PRIVATE
     LABEL "ALSA (experimental)"
