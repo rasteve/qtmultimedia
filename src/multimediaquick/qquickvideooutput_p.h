@@ -54,6 +54,8 @@ class Q_MULTIMEDIAQUICK_EXPORT QQuickVideoOutput : public QQuickItem
     Q_OBJECT
     Q_DISABLE_COPY(QQuickVideoOutput)
     Q_PROPERTY(FillMode fillMode READ fillMode WRITE setFillMode NOTIFY fillModeChanged)
+    Q_PROPERTY(EndOfStreamPolicy endOfStreamPolicy READ endOfStreamPolicy WRITE setEndOfStreamPolicy
+                       NOTIFY endOfStreamPolicyChanged REVISION(6, 9))
     Q_PROPERTY(int orientation READ orientation WRITE setOrientation NOTIFY orientationChanged)
     Q_PROPERTY(bool mirrored READ mirrored WRITE setMirrored NOTIFY mirroredChanged REVISION(6, 9))
     Q_PROPERTY(QRectF sourceRect READ sourceRect NOTIFY sourceRectChanged)
@@ -73,6 +75,13 @@ public:
     };
     Q_ENUM(FillMode)
 
+    enum EndOfStreamPolicy
+    {
+        ClearOutput,
+        KeepLastFrame
+    };
+    Q_ENUM(EndOfStreamPolicy)
+
     QQuickVideoOutput(QQuickItem *parent = 0);
     ~QQuickVideoOutput();
 
@@ -90,6 +99,11 @@ public:
     QRectF sourceRect() const;
     QRectF contentRect() const;
 
+    EndOfStreamPolicy endOfStreamPolicy() const;
+    void setEndOfStreamPolicy(EndOfStreamPolicy policy);
+
+    Q_REVISION(6, 9) Q_INVOKABLE void clearOutput();
+
 Q_SIGNALS:
     void sourceChanged();
     void fillModeChanged(QQuickVideoOutput::FillMode);
@@ -97,6 +111,7 @@ Q_SIGNALS:
     void mirroredChanged();
     void sourceRectChanged();
     void contentRectChanged();
+    void endOfStreamPolicyChanged(QQuickVideoOutput::EndOfStreamPolicy);
 
 protected:
     QSGNode *updatePaintNode(QSGNode *, UpdatePaintNodeData *) override;
@@ -143,6 +158,8 @@ private:
     QMutex m_frameMutex;
     QRectF m_renderedRect;         // Destination pixel coordinates, clipped
     QRectF m_sourceTextureRect;    // Source texture coordinates
+
+    EndOfStreamPolicy m_endOfStreamPolicy = ClearOutput;
 };
 
 QT_END_NAMESPACE

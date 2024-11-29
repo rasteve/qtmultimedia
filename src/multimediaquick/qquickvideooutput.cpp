@@ -102,7 +102,8 @@ QQuickVideoOutput::QQuickVideoOutput(QQuickItem *parent) :
     // TODO: investigate if we have any benefit of setting frame in the source thread
     connect(m_sink, &QVideoSink::videoFrameChanged, this,
             [this](const QVideoFrame &frame) {
-                setFrame(frame);
+                if (frame.isValid() || m_endOfStreamPolicy == ClearOutput)
+                    setFrame(frame);
             },
             Qt::DirectConnection);
 
@@ -332,6 +333,50 @@ void QQuickVideoOutput::setMirrored(bool mirrored)
 QRectF QQuickVideoOutput::contentRect() const
 {
     return m_contentRect;
+}
+
+/*!
+    \qmlproperty enumeration QtMultimedia::VideoOutput::endOfStreamPolicy
+    \since 6.9
+
+    This property specifies the policy to apply when the video stream ends. This
+    occurs at the end of media playback or upon deactivation of the camera, screen,
+    or window capture.
+
+    The \c endOfStreamPolicy can be one of:
+
+    \value ClearOutput The video output is cleared.
+    \value KeepLastFrame The video output continues displaying the 
+           last frame. Use the method \l clearOutput() to clear the output manually.
+
+    The default value is \c ClearOutput.
+*/
+QQuickVideoOutput::EndOfStreamPolicy QQuickVideoOutput::endOfStreamPolicy() const
+{
+    return m_endOfStreamPolicy;
+}
+
+void QQuickVideoOutput::setEndOfStreamPolicy(EndOfStreamPolicy policy)
+{
+    if (m_endOfStreamPolicy == policy)
+        return;
+
+    m_endOfStreamPolicy = policy;
+    emit endOfStreamPolicyChanged(policy);
+}
+
+/*!
+    \qmlmethod void QtMultimedia::VideoOutput::clearOutput
+    \since 6.9
+
+    Clears the video output by removing the currently displayed video frame.
+    This method is recommended when you need to remove the last video frame after
+    detaching the video output from the source or after the source stream ends
+    with the video output's \l endOfStreamPolicy property set to \c KeepLastFrame.
+*/
+void QQuickVideoOutput::clearOutput()
+{
+    setFrame({});
 }
 
 /*!
