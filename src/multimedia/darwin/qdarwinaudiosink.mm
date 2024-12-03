@@ -423,9 +423,14 @@ OSStatus QDarwinAudioSink::renderCallback(void *inRefCon, AudioUnitRenderActionF
 bool QDarwinAudioSink::open()
 {
 #if defined(Q_OS_IOS)
+#if 0
     // Set default category to Ambient (implies MixWithOthers). This makes sure audio stops playing
     // if the screen is locked or if the Silent switch is toggled.
     CoreAudioSessionManager::instance().setCategory(CoreAudioSessionManager::Ambient, CoreAudioSessionManager::None);
+#else
+    // Update: ambient does not seem to imply MixWithOthers, we set a different category/options instead:
+    CoreAudioSessionManager::instance().setCategory(CoreAudioSessionManager::Playback, CoreAudioSessionManager::MixWithOthers);
+#endif
     CoreAudioSessionManager::instance().setActive(true);
 #endif
 
