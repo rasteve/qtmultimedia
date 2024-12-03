@@ -21,6 +21,7 @@
             \li \l {Building FFmpeg from source}{Building FFmpeg}
                 \list
                     \li \l {Building FFmpeg from source on Windows}{Building FFmpeg on Windows}
+                    \li \l {Building FFmpeg from source on macOS}{Building FFmpeg on macOS}
                 \endlist
         \endlist
     \li \l {Changes to Qt Multimedia}{Upgrading from Qt 5}
