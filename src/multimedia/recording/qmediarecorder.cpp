@@ -190,7 +190,7 @@ void QMediaRecorder::setCaptureSession(QMediaCaptureSession *session)
     d->captureSession = session;
 }
 /*!
-    \qmlproperty QUrl QtMultimedia::MediaRecorder::outputLocation
+    \qmlproperty url QtMultimedia::MediaRecorder::outputLocation
     \brief The destination location of media content.
 
     Setting the location can fail, for example when the service supports only
@@ -229,7 +229,7 @@ void QMediaRecorder::setCaptureSession(QMediaCaptureSession *session)
 */
 
 /*!
-    \qmlproperty QUrl QtMultimedia::MediaRecorder::actualLocation
+    \qmlproperty url QtMultimedia::MediaRecorder::actualLocation
     \brief The actual location of the last media content.
 
     The actual location is reset when a new \l outputLocation is assigned.
