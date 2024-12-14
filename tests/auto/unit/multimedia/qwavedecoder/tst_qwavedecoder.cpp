@@ -129,7 +129,7 @@ void tst_QWaveDecoder::file()
 
     QFile stream;
     stream.setFileName(file);
-    stream.open(QIODevice::ReadOnly);
+    QVERIFY(stream.open(QIODevice::ReadOnly));
 
     QVERIFY(stream.isOpen());
 
@@ -211,7 +211,7 @@ void tst_QWaveDecoder::http()
 
     QFile stream;
     stream.setFileName(file);
-    stream.open(QIODevice::ReadOnly);
+    QVERIFY(stream.open(QIODevice::ReadOnly));
 
     QVERIFY(stream.isOpen());
 
@@ -266,7 +266,7 @@ void tst_QWaveDecoder::readAllAtOnce()
 {
     QFile stream;
     stream.setFileName(testFilePath("isawav_2_8_44100.wav"));
-    stream.open(QIODevice::ReadOnly);
+    QVERIFY(stream.open(QIODevice::ReadOnly));
 
     QVERIFY(stream.isOpen());
 
@@ -294,7 +294,7 @@ void tst_QWaveDecoder::readPerByte()
 {
     QFile stream;
     stream.setFileName(testFilePath("isawav_2_8_44100.wav"));
-    stream.open(QIODevice::ReadOnly);
+    QVERIFY(stream.open(QIODevice::ReadOnly));
 
     QVERIFY(stream.isOpen());
 

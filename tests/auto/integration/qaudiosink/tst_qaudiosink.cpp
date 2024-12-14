@@ -460,7 +460,7 @@ void tst_QAudioSink::pull()
     QVERIFY2((audioSink.elapsedUSecs() == qint64(0)), "elapsedUSecs() not zero on creation");
 
     audioFile->close();
-    audioFile->open(QIODevice::ReadOnly);
+    QVERIFY(audioFile->open(QIODevice::ReadOnly));
     audioFile->seek(QWaveDecoder::headerLength());
 
     audioSink.start(audioFile.data());
@@ -526,7 +526,7 @@ void tst_QAudioSink::pullSuspendResume()
     QVERIFY2((audioSink.elapsedUSecs() == qint64(0)), "elapsedUSecs() not zero on creation");
 
     audioFile->close();
-    audioFile->open(QIODevice::ReadOnly);
+    QVERIFY(audioFile->open(QIODevice::ReadOnly));
     audioFile->seek(QWaveDecoder::headerLength());
 
     audioSink.start(audioFile.data());
@@ -676,7 +676,7 @@ void tst_QAudioSink::push()
     QVERIFY2((audioSink.elapsedUSecs() == qint64(0)), "elapsedUSecs() not zero on creation");
 
     audioFile->close();
-    audioFile->open(QIODevice::ReadOnly);
+    QVERIFY(audioFile->open(QIODevice::ReadOnly));
     audioFile->seek(QWaveDecoder::headerLength());
 
     QIODevice *feed = audioSink.start();
@@ -765,7 +765,7 @@ void tst_QAudioSink::pushSuspendResume()
     QVERIFY2((audioSink.elapsedUSecs() == qint64(0)), "elapsedUSecs() not zero on creation");
 
     audioFile->close();
-    audioFile->open(QIODevice::ReadOnly);
+    QVERIFY(audioFile->open(QIODevice::ReadOnly));
     audioFile->seek(QWaveDecoder::headerLength());
 
     QIODevice *feed = audioSink.start();
@@ -897,7 +897,7 @@ void tst_QAudioSink::pushResetResume()
     audioSink.setVolume(0.1f);
 
     audioFile->close();
-    audioFile->open(QIODevice::ReadOnly);
+    QVERIFY(audioFile->open(QIODevice::ReadOnly));
     audioFile->seek(QWaveDecoder::headerLength());
 
     QPointer<QIODevice> feed = audioSink.start();
@@ -945,7 +945,7 @@ void tst_QAudioSink::pushUnderrun()
     QVERIFY2((audioSink.elapsedUSecs() == qint64(0)), "elapsedUSecs() not zero on creation");
 
     audioFile->close();
-    audioFile->open(QIODevice::ReadOnly);
+    QVERIFY(audioFile->open(QIODevice::ReadOnly));
     audioFile->seek(QWaveDecoder::headerLength());
 
     QIODevice *feed = audioSink.start();
