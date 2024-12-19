@@ -37,4 +37,26 @@ void QPlatformMediaPlayer::error(int error, const QString &errorString)
     player->d_func()->setError(QMediaPlayer::Error(error), errorString);
 }
 
+QPlatformMediaPlayer::PitchCompensationAvailability
+QPlatformMediaPlayer::pitchCompensationAvailability() const
+{
+    return PitchCompensationAvailability::PitchCompensationUnavailable;
+}
+
+void QPlatformMediaPlayer::setPitchCompensation(bool /*enabled*/)
+{
+    qWarning() << "QMediaPlayer::setPitchCompensation not supported on this QtMultimedia "
+                  "backend";
+}
+
+bool QPlatformMediaPlayer::pitchCompensation() const
+{
+    return false;
+}
+
+void QPlatformMediaPlayer::pitchCompensationChanged(bool enabled) const
+{
+    emit player->pitchCompensationChanged(enabled);
+}
+
 QT_END_NAMESPACE

@@ -85,6 +85,9 @@ public:
 
     bool canPlayQrc() const override;
 
+    PitchCompensationAvailability pitchCompensationAvailability() const override;
+    bool pitchCompensation() const override;
+
 private:
     QGstreamerMediaPlayer(QGstreamerVideoOutput *videoOutput, QMediaPlayer *parent);
 

@@ -1070,6 +1070,110 @@ QMediaMetaData QMediaPlayer::metaData() const
     return d->control ? d->control->metaData() : QMediaMetaData{};
 }
 
+/*!
+    \qmlproperty bool QtMultimedia::MediaPlayer::pitchCompensation
+    \since 6.10
+
+    This property holds whether pitch compensation is enabled.
+*/
+
+/*!
+    \property QMediaPlayer::pitchCompensation
+    \brief The pitch compensation status of the media player.
+    \since 6.10
+
+    Indicates whether pitch compensation is enabled. When enabled, changing the playback rate
+    will not affect the pitch of the audio signal.
+
+    \note The pitch compensation will increase the CPU load of the QMediaPlayer.
+
+    By default is \c{true} if pitch compensation, is available, else \c{false}.
+*/
+
+/*!
+    Returns the state of pitch compensation.
+    \since 6.10
+*/
+bool QMediaPlayer::pitchCompensation() const
+{
+    Q_D(const QMediaPlayer);
+    return d->control->pitchCompensation();
+}
+
+/*!
+    \fn QMediaPlayer::setPitchCompensation(bool enabled)
+
+    Sets the state of pitch compensation. This only has an effect if the audio pitch
+    compensation can be configured on the backend at runtime.
+    \since 6.10
+*/
+void QMediaPlayer::setPitchCompensation(bool enabled) const
+{
+    Q_D(const QMediaPlayer);
+    d->control->setPitchCompensation(enabled);
+}
+
+/*!
+    \enum QMediaPlayer::PitchCompensationAvailability
+    \since 6.10
+
+    Availablility of pitch compensation.
+
+    Different backends have different behavior regarding pitch compensation when changing
+    playback rate.
+
+    \value PitchCompensationAlwaysOn The media player is always performing pitch compensation.
+    \value PitchCompensationAvailable The media player can be configured to use pitch compensation.
+        If pitch compensation is available on the current platform, it will be enabled by default,
+        but users can disable if needed.
+    \value PitchCompensationUnavailable The media player is not able to perform pitch compensation
+        on the current platform.
+*/
+
+/*!
+    \qmlproperty enumeration QtMultimedia::MediaPlayer::pitchCompensationAvailability
+    \since 6.10
+
+    This property holds whether pitch compensation is available.
+
+    It can be one of the following:
+
+    \table
+    \header
+        \li Property value
+        \li Description
+    \row \li PitchCompensationAlwaysOn
+        \li The media player is always performing pitch compensation.
+    \row \li PitchCompensationAvailable
+        \li The media player can be configured to use pitch compensation.
+    \row \li PitchCompensationUnavailable
+        \li The media player is not able to perform pitch compensation on the current platform.
+    \endtable
+*/
+
+/*!
+    \property QMediaPlayer::pitchCompensationAvailability
+    \brief The pitch compensation availability of the current QtMultimedia backend.
+    \since 6.10
+
+    Indicates the availability of pitch compensation of the QMediaPlayer on the current backend.
+
+    \note Different backends may have different behavior.
+
+    For more information, see \l{QMediaPlayer::PitchCompensationAvailability}.
+*/
+
+/*!
+    Returns availability of pitch compensation of the current backend.
+    \since 6.10
+*/
+
+QMediaPlayer::PitchCompensationAvailability QMediaPlayer::pitchCompensationAvailability() const
+{
+    Q_D(const QMediaPlayer);
+    return d->control->pitchCompensationAvailability();
+}
+
 // Enums
 /*!
     \enum QMediaPlayer::PlaybackState

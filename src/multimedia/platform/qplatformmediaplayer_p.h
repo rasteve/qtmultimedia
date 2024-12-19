@@ -131,6 +131,13 @@ public:
         Q_EMIT player->loopsChanged();
     }
 
+    using PitchCompensationAvailability = QMediaPlayer::PitchCompensationAvailability;
+
+    virtual PitchCompensationAvailability pitchCompensationAvailability() const;
+    virtual void setPitchCompensation(bool enabled);
+    virtual bool pitchCompensation() const;
+    void pitchCompensationChanged(bool enabled) const;
+
 protected:
     explicit QPlatformMediaPlayer(QMediaPlayer *parent = nullptr);
 

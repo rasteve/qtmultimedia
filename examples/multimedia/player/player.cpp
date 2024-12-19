@@ -122,6 +122,16 @@ Player::Player(QWidget *parent) : QWidget(parent)
     m_fullScreenButton->setCheckable(true);
     controlLayout->addWidget(m_fullScreenButton);
 
+    m_pitchCompensationButton = new QPushButton(tr("Pitch compensation"), this);
+    m_pitchCompensationButton->setCheckable(true);
+    controlLayout->addWidget(m_pitchCompensationButton);
+    connect(m_player, &QMediaPlayer::pitchCompensationChanged, this, [this] {
+        m_pitchCompensationButton->setChecked(m_player->pitchCompensation());
+    });
+    m_pitchCompensationButton->setChecked(m_player->pitchCompensation());
+    connect(m_pitchCompensationButton, &QPushButton::toggled, m_player,
+            &QMediaPlayer::setPitchCompensation);
+
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     m_audioOutputCombo = new QComboBox(this);
     controlLayout->addWidget(m_audioOutputCombo);

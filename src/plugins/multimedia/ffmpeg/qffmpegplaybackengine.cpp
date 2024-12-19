@@ -202,7 +202,8 @@ PlaybackEngine::createRenderer(QPlatformMediaPlayer::TrackType trackType)
                            : RendererPtr{ {}, {} };
     case QPlatformMediaPlayer::AudioStream:
         return m_audioOutput || m_audioBufferOutput
-                ? createPlaybackEngineObject<AudioRenderer>(m_timeController, m_audioOutput, m_audioBufferOutput)
+                ? createPlaybackEngineObject<AudioRenderer>(
+                          m_timeController, m_audioOutput, m_audioBufferOutput, m_pitchCompensation)
                 : RendererPtr{ {}, {} };
     case QPlatformMediaPlayer::SubtitleStream:
         return m_videoSink
@@ -554,6 +555,13 @@ int PlaybackEngine::activeTrack(QPlatformMediaPlayer::TrackType type) const
     return m_media.activeTrack(type);
 }
 
+void PlaybackEngine::setPitchCompensation(bool enabled)
+{
+    m_pitchCompensation = enabled;
+    if (AudioRenderer *renderer = getAudioRenderer())
+        renderer->setPitchCompensation(enabled);
+}
+
 void PlaybackEngine::setActiveTrack(QPlatformMediaPlayer::TrackType trackType, int streamNumber)
 {
     if (!m_media.setActiveTrack(trackType, streamNumber))
@@ -597,8 +605,7 @@ bool PlaybackEngine::hasRenderer(quint64 id) const
 template <typename AudioOutput>
 void PlaybackEngine::updateActiveAudioOutput(AudioOutput *output)
 {
-    if (auto renderer =
-                qobject_cast<AudioRenderer *>(m_renderers[QPlatformMediaPlayer::AudioStream].get()))
+    if (AudioRenderer *renderer = getAudioRenderer())
         renderer->setOutput(output);
 }
 
@@ -643,6 +650,12 @@ qint64 PlaybackEngine::boundPosition(qint64 position) const
     position = qMax(position, 0);
     return duration() > 0 ? qMin(position, duration()) : position;
 }
+
+AudioRenderer *PlaybackEngine::getAudioRenderer()
+{
+    return qobject_cast<AudioRenderer *>(m_renderers[QPlatformMediaPlayer::AudioStream].get());
+}
+
 } // namespace QFFmpeg
 
 QT_END_NAMESPACE

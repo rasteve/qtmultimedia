@@ -170,11 +170,11 @@ private:
 AbstactAudioFrameConverter::~AbstactAudioFrameConverter() = default;
 
 AudioRenderer::AudioRenderer(const TimeController &tc, QAudioOutput *output,
-                             QAudioBufferOutput *bufferOutput)
+                             QAudioBufferOutput *bufferOutput, bool pitchCompensation)
     : Renderer(tc),
       m_output(output),
       m_bufferOutput(bufferOutput),
-      m_pitchCompensation{ qEnvironmentVariableIsSet("QT_MEDIA_PLAYER_ENABLE_PITCH_COMPENSATION") }
+      m_pitchCompensation(pitchCompensation)
 {
     if (output) {
         // TODO: implement the signals in QPlatformAudioOutput and connect to them, QTBUG-112294
@@ -193,6 +193,17 @@ void AudioRenderer::setOutput(QAudioBufferOutput *bufferOutput)
 {
     setOutputInternal(m_bufferOutput, bufferOutput,
                       [this](QAudioBufferOutput *) { m_bufferOutputChanged = true; });
+}
+
+void AudioRenderer::setPitchCompensation(bool enabled)
+{
+    QMetaObject::invokeMethod(this, [this, enabled] {
+        if (m_pitchCompensation == enabled)
+            return;
+
+        m_pitchCompensation = enabled;
+        m_audioFrameConverter.reset();
+    });
 }
 
 AudioRenderer::~AudioRenderer()

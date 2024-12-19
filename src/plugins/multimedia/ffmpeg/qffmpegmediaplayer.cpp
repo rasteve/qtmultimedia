@@ -253,6 +253,7 @@ void QFFmpegMediaPlayer::setMediaAsync(QFFmpeg::MediaDataHolder::Maybe mediaData
 
     m_playbackEngine->setLoops(loops());
     m_playbackEngine->setPlaybackRate(m_playbackRate);
+    m_playbackEngine->setPitchCompensation(m_pitchCompensation);
 
     durationChanged(duration());
     tracksChanged();
@@ -404,6 +405,28 @@ void QFFmpegMediaPlayer::setLoops(int loops)
         m_playbackEngine->setLoops(loops);
 
     QPlatformMediaPlayer::setLoops(loops);
+}
+
+void QFFmpegMediaPlayer::setPitchCompensation(bool enabled)
+{
+    if (enabled == m_pitchCompensation)
+        return;
+
+    m_pitchCompensation = enabled;
+    if (m_playbackEngine)
+        m_playbackEngine->setPitchCompensation(enabled);
+    QPlatformMediaPlayer::pitchCompensationChanged(enabled);
+}
+
+bool QFFmpegMediaPlayer::pitchCompensation() const
+{
+    return m_pitchCompensation;
+}
+
+QPlatformMediaPlayer::PitchCompensationAvailability
+QFFmpegMediaPlayer::pitchCompensationAvailability() const
+{
+    return PitchCompensationAvailability::PitchCompensationAvailable;
 }
 
 QT_END_NAMESPACE

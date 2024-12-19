@@ -119,6 +119,8 @@ public:
 
     int activeTrack(QPlatformMediaPlayer::TrackType type) const;
 
+    void setPitchCompensation(bool enabled);
+
 signals:
     void endOfStream();
     void errorOccured(int, const QString &);
@@ -197,6 +199,8 @@ private:
 
     qint64 boundPosition(qint64 position) const;
 
+    AudioRenderer *getAudioRenderer();
+
 private:
     MediaDataHolder m_media;
 
@@ -218,6 +222,8 @@ private:
     std::array<std::optional<CodecContext>, QPlatformMediaPlayer::NTrackTypes> m_codecContexts;
     int m_loops = QMediaPlayer::Once;
     LoopOffset m_currentLoopOffset;
+
+    bool m_pitchCompensation = true;
 };
 
 template<typename T, typename... Args>

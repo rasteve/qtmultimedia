@@ -777,6 +777,17 @@ bool QGstreamerMediaPlayer::canPlayQrc() const
     return true;
 }
 
+bool QGstreamerMediaPlayer::pitchCompensation() const
+{
+    return true;
+}
+
+QPlatformMediaPlayer::PitchCompensationAvailability
+QGstreamerMediaPlayer::pitchCompensationAvailability() const
+{
+    return PitchCompensationAvailability::PitchCompensationAlwaysOn;
+}
+
 QUrl QGstreamerMediaPlayer::media() const
 {
     return m_url;

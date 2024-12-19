@@ -54,6 +54,14 @@ class Q_MULTIMEDIA_EXPORT QMediaPlayer : public QObject
     Q_PROPERTY(int activeSubtitleTrack READ activeSubtitleTrack WRITE setActiveSubtitleTrack NOTIFY
                        activeTracksChanged)
 
+    Q_REVISION(6, 10)
+    Q_PROPERTY(PitchCompensationAvailability pitchCompensationAvailability READ
+                       pitchCompensationAvailability CONSTANT)
+
+    Q_REVISION(6, 10)
+    Q_PROPERTY(bool pitchCompensation READ pitchCompensation WRITE setPitchCompensation NOTIFY
+                       pitchCompensationChanged)
+
 public:
     enum PlaybackState
     {
@@ -92,6 +100,14 @@ public:
         Once = 1
     };
     Q_ENUM(Loops)
+
+    enum PitchCompensationAvailability
+    {
+        PitchCompensationAlwaysOn,
+        PitchCompensationAvailable,
+        PitchCompensationUnavailable,
+    };
+    Q_ENUM(PitchCompensationAvailability)
 
     explicit QMediaPlayer(QObject *parent = nullptr);
     ~QMediaPlayer() override;
@@ -149,6 +165,9 @@ public:
     bool isAvailable() const;
     QMediaMetaData metaData() const;
 
+    PitchCompensationAvailability pitchCompensationAvailability() const;
+    bool pitchCompensation() const;
+
 public Q_SLOTS:
     void play();
     void pause();
@@ -160,6 +179,8 @@ public Q_SLOTS:
 
     void setSource(const QUrl &source);
     void setSourceDevice(QIODevice *device, const QUrl &sourceUrl = QUrl());
+
+    void setPitchCompensation(bool) const;
 
 Q_SIGNALS:
     void sourceChanged(const QUrl &media);
@@ -189,6 +210,9 @@ Q_SIGNALS:
 
     void errorChanged();
     void errorOccurred(QMediaPlayer::Error error, const QString &errorString);
+
+    Q_REVISION(6, 10)
+    void pitchCompensationChanged(bool);
 
 private:
     Q_DISABLE_COPY(QMediaPlayer)
