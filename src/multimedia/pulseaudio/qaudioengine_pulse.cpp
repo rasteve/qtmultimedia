@@ -400,7 +400,10 @@ void QPulseAudioEngine::prepare()
         !windowIconName.isEmpty())
         pa_proplist_sets(proplist, PA_PROP_WINDOW_ICON_NAME, qUtf8Printable(windowIconName));
 
-    m_context.reset(pa_context_new_with_proplist(m_mainLoopApi, nullptr, proplist));
+    m_context = PAContextHandle{
+        pa_context_new_with_proplist(m_mainLoopApi, nullptr, proplist),
+        PAContextHandle::HasRef,
+    };
     pa_proplist_free(proplist);
 
     if (!m_context) {
@@ -513,14 +516,20 @@ void QPulseAudioEngine::updateDevices()
         qWarning() << "PulseAudioService: failed to get server info";
 
     // Get output devices
-    operation.reset(pa_context_get_sink_info_list(m_context.get(), sinkInfoCallback, this));
+    operation = PAOperationHandle{
+        pa_context_get_sink_info_list(m_context.get(), sinkInfoCallback, this),
+        PAOperationHandle::HasRef,
+    };
     if (operation)
         wait(operation);
     else
         qWarning() << "PulseAudioService: failed to get sink info";
 
     // Get input devices
-    operation.reset(pa_context_get_source_info_list(m_context.get(), sourceInfoCallback, this));
+    operation = PAOperationHandle{
+        pa_context_get_source_info_list(m_context.get(), sourceInfoCallback, this),
+        PAOperationHandle::HasRef,
+    };
     if (operation)
         wait(operation);
     else
