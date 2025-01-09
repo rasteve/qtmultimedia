@@ -164,6 +164,7 @@ if (QT_FEATURE_pipewire)
             "${PipeWire_INCLUDE_DIRS};${Spa_INCLUDE_DIRS}"
         SOURCES
             pipewire/qpipewire_instance.cpp            pipewire/qpipewire_instance_p.h
+            pipewire/qpipewire_propertydict.cpp        pipewire/qpipewire_propertydict_p.h
                                                        pipewire/qpipewire_support_p.h
             pipewire/qpipewire_symbolloader.cpp        pipewire/qpipewire_symbolloader_p.h
     )
