@@ -169,11 +169,14 @@ if (QT_FEATURE_pipewire)
             "${PipeWire_INCLUDE_DIRS};${Spa_INCLUDE_DIRS}"
         SOURCES
             pipewire/qpipewire_audiocontextmanager.cpp pipewire/qpipewire_audiocontextmanager_p.h
+            pipewire/qpipewire_audiodevice.cpp         pipewire/qpipewire_audiodevice_p.h
             pipewire/qpipewire_audiodevicemonitor.cpp  pipewire/qpipewire_audiodevicemonitor_p.h
             pipewire/qpipewire_audiodevices.cpp        pipewire/qpipewire_audiodevices_p.h
             pipewire/qpipewire_instance.cpp            pipewire/qpipewire_instance_p.h
             pipewire/qpipewire_propertydict.cpp        pipewire/qpipewire_propertydict_p.h
             pipewire/qpipewire_registry_support.cpp    pipewire/qpipewire_registry_support_p.h
+            pipewire/qpipewire_spa_compat_p.h
+            pipewire/qpipewire_spa_pod_support.cpp     pipewire/qpipewire_spa_pod_support_p.h
             pipewire/qpipewire_support.cpp             pipewire/qpipewire_support_p.h
             pipewire/qpipewire_symbolloader.cpp        pipewire/qpipewire_symbolloader_p.h
     )
