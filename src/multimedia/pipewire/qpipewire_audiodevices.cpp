@@ -3,12 +3,26 @@
 
 #include "qpipewire_audiodevices_p.h"
 
+#include "qpipewire_audiocontextmanager_p.h"
+#include "qpipewire_instance_p.h"
+
 QT_BEGIN_NAMESPACE
 
 namespace QtPipeWire {
 
 bool QAudioDevices::isSupported()
 {
+    QByteArray requestedBackend = qgetenv("QT_AUDIO_BACKEND");
+    if (requestedBackend == "pipewire") {
+        bool pipewireAudioAvailable =
+                QPipeWireInstance::isLoaded() && QAudioContextManager::instance()->isConnected();
+
+        if (!pipewireAudioAvailable) {
+            qDebug() << "PipeWire audio backend requested. not available. Using default backend";
+            return false;
+        }
+    }
+
     return false;
 }
 

@@ -163,6 +163,7 @@ if (QT_FEATURE_pipewire)
         SYSTEM_INCLUDE_DIRECTORIES
             "${PipeWire_INCLUDE_DIRS};${Spa_INCLUDE_DIRS}"
         SOURCES
+            pipewire/qpipewire_audiocontextmanager.cpp pipewire/qpipewire_audiocontextmanager_p.h
             pipewire/qpipewire_audiodevices.cpp        pipewire/qpipewire_audiodevices_p.h
             pipewire/qpipewire_instance.cpp            pipewire/qpipewire_instance_p.h
             pipewire/qpipewire_propertydict.cpp        pipewire/qpipewire_propertydict_p.h
@@ -185,6 +186,7 @@ if (QT_FEATURE_pipewire)
     check_cxx_compiler_flag(QT_MM_HAS_WSIGN_COMPARE -Wsign-compare)
     if (QT_MM_HAS_WSIGN_COMPARE)
         set_source_files_properties(
+            pipewire/qpipewire_audiocontextmanager.cpp
             pipewire/qpipewire_audiodevices.cpp
             pipewire/qpipewire_instance.cpp
             pipewire/qpipewire_screencapture.cpp
