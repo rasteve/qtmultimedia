@@ -134,12 +134,6 @@ int main(int, char **)
 
 #### Features
 
-qt_feature("ffmpeg" PRIVATE
-    LABEL "FFmpeg"
-    ENABLE INPUT_ffmpeg STREQUAL 'yes'
-    DISABLE INPUT_ffmpeg STREQUAL 'no'
-    CONDITION FFmpeg_FOUND AND (APPLE OR WIN32 OR ANDROID OR QNX OR QT_FEATURE_pulseaudio)
-)
 qt_feature("pipewire" PRIVATE
     LABEL "PipeWire"
     ENABLE INPUT_pipewire STREQUAL 'yes'
@@ -247,6 +241,12 @@ qt_feature("spatialaudio_quick3d" PRIVATE
     LABEL "Spatial Audio (Quick3D)"
     CONDITION TARGET Qt::Quick3D AND QT_FEATURE_spatialaudio
 )
+qt_feature("ffmpeg" PRIVATE
+    LABEL "FFmpeg"
+    ENABLE INPUT_ffmpeg STREQUAL 'yes'
+    DISABLE INPUT_ffmpeg STREQUAL 'no'
+    CONDITION FFmpeg_FOUND AND (APPLE OR WIN32 OR ANDROID OR QNX OR QT_FEATURE_pulseaudio OR QT_FEATURE_pipewire)
+)
 
 qt_configure_add_summary_section(NAME "Qt Multimedia")
 qt_configure_add_summary_entry(ARGS "spatialaudio")
@@ -254,6 +254,7 @@ qt_configure_add_summary_entry(ARGS "spatialaudio_quick3d")
 qt_configure_add_summary_section(NAME "Low level Audio Backend")
 qt_configure_add_summary_entry(ARGS "alsa")
 qt_configure_add_summary_entry(ARGS "pulseaudio")
+qt_configure_add_summary_entry(ARGS "pipewire")
 qt_configure_add_summary_entry(ARGS "mmrenderer")
 qt_configure_add_summary_entry(ARGS "coreaudio")
 qt_configure_add_summary_entry(ARGS "wmsdk")
@@ -281,7 +282,8 @@ qt_configure_end_summary_section() # end of "Qt Multimedia" section
 qt_configure_add_report_entry(
     TYPE WARNING
     MESSAGE "No backend for low level audio found."
-    CONDITION NOT QT_FEATURE_alsa AND NOT QT_FEATURE_pulseaudio AND NOT QT_FEATURE_mmrenderer AND NOT QT_FEATURE_coreaudio AND NOT QT_FEATURE_wmsdk AND NOT ANDROID AND NOT WASM
+    CONDITION NOT QT_FEATURE_alsa AND NOT QT_FEATURE_pulseaudio AND NOT QT_FEATURE_mmrenderer AND NOT QT_FEATURE_coreaudio
+              AND NOT QT_FEATURE_wmsdk AND NOT ANDROID AND NOT WASM AND NOT QT_FEATURE_pipewire
 )
 
 qt_configure_add_report_entry(

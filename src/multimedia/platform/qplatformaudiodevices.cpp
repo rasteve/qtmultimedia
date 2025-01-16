@@ -7,19 +7,28 @@
 #include "qaudiodevice.h"
 
 #if defined(Q_OS_ANDROID)
-#include <qandroidaudiodevices_p.h>
-#elif defined(Q_OS_DARWIN)
-#include <qdarwinaudiodevices_p.h>
-#elif defined(Q_OS_WINDOWS) && QT_CONFIG(wmf)
-#include <qwindowsaudiodevices_p.h>
-#elif QT_CONFIG(alsa)
-#include <qalsaaudiodevices_p.h>
-#elif QT_CONFIG(pulseaudio)
-#include <qpulseaudiodevices_p.h>
-#elif defined(Q_OS_QNX)
-#include <qqnxaudiodevices_p.h>
-#elif defined(Q_OS_WASM)
-#include <private/qwasmmediadevices_p.h>
+#  include <qandroidaudiodevices_p.h>
+#endif
+#if defined(Q_OS_DARWIN)
+#  include <qdarwinaudiodevices_p.h>
+#endif
+#if defined(Q_OS_WINDOWS) && QT_CONFIG(wmf)
+#  include <qwindowsaudiodevices_p.h>
+#endif
+#if QT_CONFIG(alsa)
+#  include <qalsaaudiodevices_p.h>
+#endif
+#if QT_CONFIG(pulseaudio)
+#  include <qpulseaudiodevices_p.h>
+#endif
+#if QT_CONFIG(pipewire)
+#  include <pipewire/qpipewire_audiodevices_p.h>
+#endif
+#if defined(Q_OS_QNX)
+#  include <qqnxaudiodevices_p.h>
+#endif
+#if defined(Q_OS_WASM)
+#  include <private/qwasmmediadevices_p.h>
 #endif
 
 QT_BEGIN_NAMESPACE
@@ -28,21 +37,30 @@ std::unique_ptr<QPlatformAudioDevices> QPlatformAudioDevices::create()
 {
 #ifdef Q_OS_DARWIN
     return std::make_unique<QDarwinAudioDevices>();
-#elif defined(Q_OS_WINDOWS) && QT_CONFIG(wmf)
-    return std::make_unique<QWindowsAudioDevices>();
-#elif defined(Q_OS_ANDROID)
-    return std::make_unique<QAndroidAudioDevices>();
-#elif QT_CONFIG(alsa)
-    return std::make_unique<QAlsaAudioDevices>();
-#elif QT_CONFIG(pulseaudio)
-    return std::make_unique<QPulseAudioDevices>();
-#elif defined(Q_OS_QNX)
-    return std::make_unique<QQnxAudioDevices>();
-#elif defined(Q_OS_WASM)
-    return std::make_unique<QWasmMediaDevices>();
-#else
-    return std::make_unique<QPlatformAudioDevices>();
 #endif
+#if defined(Q_OS_WINDOWS) && QT_CONFIG(wmf)
+    return std::make_unique<QWindowsAudioDevices>();
+#endif
+#if defined(Q_OS_ANDROID)
+    return std::make_unique<QAndroidAudioDevices>();
+#endif
+#if QT_CONFIG(pipewire)
+    if (QtPipeWire::QAudioDevices::isSupported())
+        return std::make_unique<QtPipeWire::QAudioDevices>();
+#endif
+#if QT_CONFIG(pulseaudio)
+    return std::make_unique<QPulseAudioDevices>();
+#endif
+#if QT_CONFIG(alsa)
+    return std::make_unique<QAlsaAudioDevices>();
+#endif
+#if defined(Q_OS_QNX)
+    return std::make_unique<QQnxAudioDevices>();
+#endif
+#if defined(Q_OS_WASM)
+    return std::make_unique<QWasmMediaDevices>();
+#endif
+    return std::make_unique<QPlatformAudioDevices>();
 }
 
 QPlatformAudioDevices::QPlatformAudioDevices()

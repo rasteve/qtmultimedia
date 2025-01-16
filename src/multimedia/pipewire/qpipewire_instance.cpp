@@ -3,6 +3,8 @@
 
 #include "qpipewire_instance_p.h"
 
+#include "qpipewire_symbolloader_p.h"
+
 #include <QtCore/qmutex.h>
 #include <mutex>
 
@@ -39,6 +41,11 @@ std::shared_ptr<QPipeWireInstance> QPipeWireInstance::instance()
         s_pipeWireInstance->instance = ret;
     }
     return ret;
+}
+
+bool QPipeWireInstance::isLoaded()
+{
+    return qPipewireIsLoaded();
 }
 
 QPipeWireInstance::QPipeWireInstance()
