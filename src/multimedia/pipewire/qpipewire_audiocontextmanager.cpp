@@ -5,6 +5,7 @@
 
 #include "qpipewire_instance_p.h"
 #include "qpipewire_propertydict_p.h"
+#include "qpipewire_support_p.h"
 
 #include <QtCore/qcoreapplication.h>
 #include <QtCore/qdebug.h>
@@ -23,16 +24,24 @@ namespace QtPipeWire {
 
 Q_GLOBAL_STATIC(QAudioContextManager, s_audioContextInstance);
 
-QAudioContextManager::QAudioContextManager()
-    : m_libraryInstance{
-          QPipeWireInstance::instance(),
-      }
+Q_STATIC_LOGGING_CATEGORY(lcPipewireRegistry, "qt.multimedia.pipewire.registry");
+
+QAudioContextManager::QAudioContextManager():
+    m_libraryInstance{
+        QPipeWireInstance::instance(),
+    },
+    m_deviceMonitor {
+        std::make_unique<QAudioDeviceMonitor>(),
+    }
 {
     prepareEventLoop();
     prepareContext();
     connectToPipewireInstance();
-    if (isConnected())
-        startEventLoop();
+    if (!isConnected())
+        return;
+
+    startDeviceMonitor();
+    startEventLoop();
 }
 
 QAudioContextManager::~QAudioContextManager()
@@ -40,6 +49,8 @@ QAudioContextManager::~QAudioContextManager()
     if (isConnected())
         stopEventLoop();
 
+    m_deviceMonitor.reset();
+    m_registry.reset();
     m_coreConnection.reset();
     m_context.reset();
     m_eventLoop.reset();
@@ -58,6 +69,11 @@ QAudioContextManager *QAudioContextManager::instance()
 bool QAudioContextManager::isConnected() const
 {
     return bool(m_coreConnection);
+}
+
+QAudioDeviceMonitor &QAudioContextManager::deviceMonitor()
+{
+    return *instance()->m_deviceMonitor;
 }
 
 bool QAudioContextManager::isInPwThreadLoop()
@@ -118,6 +134,51 @@ void QAudioContextManager::connectToPipewireInstance()
 
     if (!m_coreConnection)
         qInfo() << "Failed to connect to pipewire instance" << make_error_code().message();
+}
+
+void QAudioContextManager::objectAddedCb(void *data, uint32_t id, uint32_t permissions,
+                                         const char *type, uint32_t version, const spa_dict *props)
+{
+    Q_ASSERT(isInPwThreadLoop());
+
+    qCDebug(lcPipewireRegistry) << "objectAdded" << id << QString::number(permissions, 8) << type
+                                << version << *props;
+
+    reinterpret_cast<QAudioContextManager *>(data)->m_deviceMonitor->objectAdded(
+            id, permissions, type, version, props);
+}
+
+void QAudioContextManager::objectRemovedCb(void *data, uint32_t id)
+{
+    Q_ASSERT(isInPwThreadLoop());
+
+    qCDebug(lcPipewireRegistry) << "objectRemoved" << id;
+
+    reinterpret_cast<QAudioContextManager *>(data)->m_deviceMonitor->objectRemoved(id);
+}
+
+void QAudioContextManager::startDeviceMonitor()
+{
+    m_registry = PwRegistryHandle{
+        pw_core_get_registry(m_coreConnection.get(), PW_VERSION_REGISTRY,
+                             /*user_data_size=*/sizeof(QAudioContextManager *)),
+    };
+    if (!m_registry) {
+        qFatal() << "Failed to create pipewire registry" << make_error_code().message();
+        return;
+    }
+
+    spa_zero(m_registryListener);
+
+    static constexpr struct pw_registry_events registry_events = {
+        .version = PW_VERSION_REGISTRY_EVENTS,
+        .global = QAudioContextManager::objectAddedCb,
+        .global_remove = QAudioContextManager::objectRemovedCb,
+    };
+    int status =
+            pw_registry_add_listener(m_registry.get(), &m_registryListener, &registry_events, this);
+    if (status < 0)
+        qFatal() << "Failed to add listener" << make_error_code(-status).message();
 }
 
 } // namespace QtPipeWire

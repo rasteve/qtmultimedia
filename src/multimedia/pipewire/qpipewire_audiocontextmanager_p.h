@@ -17,6 +17,7 @@
 
 #include <QtCore/qglobal.h>
 
+#include "qpipewire_audiodevicemonitor_p.h"
 #include "qpipewire_support_p.h"
 
 #include <pipewire/pipewire.h>
@@ -51,6 +52,8 @@ public:
         return c();
     }
 
+    static QAudioDeviceMonitor &deviceMonitor();
+
     static bool isInPwThreadLoop();
     static pw_loop *getEventLoop();
 
@@ -70,6 +73,16 @@ private:
     // pw_core connection
     PwCoreConnectionHandle m_coreConnection;
     void connectToPipewireInstance();
+
+    // device monitor
+    PwRegistryHandle m_registry;
+    struct spa_hook m_registryListener{};
+    std::unique_ptr<QAudioDeviceMonitor> m_deviceMonitor;
+
+    void startDeviceMonitor();
+    static void objectAddedCb(void *data, uint32_t id, uint32_t permissions, const char *type,
+                              uint32_t version, const struct spa_dict *props);
+    static void objectRemovedCb(void *data, uint32_t id);
 };
 
 } // namespace QtPipeWire
