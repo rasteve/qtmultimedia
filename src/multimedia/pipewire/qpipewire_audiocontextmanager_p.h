@@ -57,6 +57,8 @@ public:
     static bool isInPwThreadLoop();
     static pw_loop *getEventLoop();
 
+    PwNodeHandle bindNode(ObjectId id);
+
 private:
     std::shared_ptr<QPipeWireInstance> m_libraryInstance;
 

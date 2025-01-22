@@ -26,7 +26,7 @@ namespace QtPipeWire {
 class QAudioDevices : public QPlatformAudioDevices
 {
 public:
-    QAudioDevices() = default;
+    QAudioDevices();
     ~QAudioDevices() override = default;
 
     static bool isSupported();
@@ -41,6 +41,10 @@ public:
                                         QObject * /*parent*/) override;
 
     QLatin1String backendName() const override { return QLatin1String{ "PipeWire" }; }
+
+private:
+    QList<QAudioDevice> m_sourceDeviceList;
+    QList<QAudioDevice> m_sinkDeviceList;
 };
 
 } // namespace QtPipeWire

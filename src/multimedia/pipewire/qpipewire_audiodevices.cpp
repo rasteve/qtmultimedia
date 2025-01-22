@@ -10,6 +10,23 @@ QT_BEGIN_NAMESPACE
 
 namespace QtPipeWire {
 
+QAudioDevices::QAudioDevices()
+{
+    Q_ASSERT(isSupported());
+
+    connect(&QAudioContextManager::deviceMonitor(), &QAudioDeviceMonitor::audioSinksChanged, this,
+            [this](QList<QAudioDevice> sinks) {
+        m_sinkDeviceList = std::move(sinks);
+        onAudioOutputsChanged();
+    });
+
+    connect(&QAudioContextManager::deviceMonitor(), &QAudioDeviceMonitor::audioSourcesChanged, this,
+            [this](QList<QAudioDevice> sources) {
+        m_sourceDeviceList = std::move(sources);
+        onAudioInputsChanged();
+    });
+}
+
 bool QAudioDevices::isSupported()
 {
     QByteArray requestedBackend = qgetenv("QT_AUDIO_BACKEND");
@@ -22,6 +39,7 @@ bool QAudioDevices::isSupported()
             qDebug() << "PipeWire audio backend requested. not available. Using default backend";
             return false;
         }
+        return true;
     }
 
     return false;
@@ -29,12 +47,12 @@ bool QAudioDevices::isSupported()
 
 QList<QAudioDevice> QAudioDevices::findAudioInputs() const
 {
-    return {};
+    return m_sourceDeviceList;
 }
 
 QList<QAudioDevice> QAudioDevices::findAudioOutputs() const
 {
-    return {};
+    return m_sinkDeviceList;
 }
 
 QPlatformAudioSource *QAudioDevices::createAudioSource(const QAudioDevice &, QObject *)
@@ -46,6 +64,7 @@ QPlatformAudioSink *QAudioDevices::createAudioSink(const QAudioDevice &, QObject
 {
     return {};
 }
+
 } // namespace QtPipeWire
 
 QT_END_NAMESPACE

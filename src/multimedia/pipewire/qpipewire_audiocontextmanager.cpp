@@ -86,6 +86,14 @@ pw_loop *QAudioContextManager::getEventLoop()
     return pw_thread_loop_get_loop(instance()->m_eventLoop.get());
 }
 
+PwNodeHandle QAudioContextManager::bindNode(ObjectId id)
+{
+    return PwNodeHandle{
+        (pw_node *)pw_registry_bind(m_registry.get(), id.value, PW_TYPE_INTERFACE_Node,
+                                    PW_VERSION_NODE, sizeof(void *)),
+    };
+}
+
 void QAudioContextManager::prepareEventLoop()
 {
     m_eventLoop = PwThreadLoopHandle{
@@ -145,7 +153,7 @@ void QAudioContextManager::objectAddedCb(void *data, uint32_t id, uint32_t permi
                                 << version << *props;
 
     reinterpret_cast<QAudioContextManager *>(data)->m_deviceMonitor->objectAdded(
-            id, permissions, type, version, props);
+            ObjectId{ id }, permissions, type, version, props);
 }
 
 void QAudioContextManager::objectRemovedCb(void *data, uint32_t id)
@@ -154,7 +162,7 @@ void QAudioContextManager::objectRemovedCb(void *data, uint32_t id)
 
     qCDebug(lcPipewireRegistry) << "objectRemoved" << id;
 
-    reinterpret_cast<QAudioContextManager *>(data)->m_deviceMonitor->objectRemoved(id);
+    reinterpret_cast<QAudioContextManager *>(data)->m_deviceMonitor->objectRemoved(ObjectId{ id });
 }
 
 void QAudioContextManager::startDeviceMonitor()
