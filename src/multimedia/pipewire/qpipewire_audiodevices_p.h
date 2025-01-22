@@ -39,6 +39,8 @@ public:
 
     QPlatformAudioSink *createAudioSink(const QAudioDevice & /*deviceInfo*/,
                                         QObject * /*parent*/) override;
+
+    QLatin1String backendName() const override { return QLatin1String{ "PipeWire" }; }
 };
 
 } // namespace QtPipeWire
