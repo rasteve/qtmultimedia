@@ -22,7 +22,6 @@
 
 #include <pipewire/pipewire.h>
 
-#include <cstdint>
 #include <functional>
 #include <map>
 #include <optional>
@@ -43,12 +42,20 @@ using PwPropertyDict = std::map<std::string, std::string, std::less<>>;
 PwPropertyDict toPropertyDict(const spa_dict &);
 
 // property getters
+// PW_KEY_MEDIA_CLASS
 std::optional<std::string_view> getMediaClass(const PwPropertyDict &);
+// PW_KEY_NODE_NAME
 std::optional<std::string_view> getNodeName(const PwPropertyDict &);
+// PW_KEY_DEVICE_SYSFS_PATH
 std::optional<std::string_view> getDeviceSysfsPath(const PwPropertyDict &);
+// PW_KEY_DEVICE_NAME
 std::optional<std::string_view> getDeviceName(const PwPropertyDict &);
+// PW_KEY_DEVICE_DESCRIPTION
 std::optional<std::string_view> getDeviceDescription(const PwPropertyDict &);
-std::optional<uint32_t> getDeviceId(const PwPropertyDict &);
+// PW_KEY_DEVICE_ID
+std::optional<ObjectId> getDeviceId(const PwPropertyDict &);
+// PW_KEY_OBJECT_SERIAL
+std::optional<ObjectSerial> getObjectSerial(const PwPropertyDict &);
 
 } // namespace QtPipeWire
 

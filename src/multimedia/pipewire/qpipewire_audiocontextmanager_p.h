@@ -33,6 +33,8 @@ public:
     QAudioContextManager();
     ~QAudioContextManager();
 
+    static bool minimumRequirementMet();
+
     static QAudioContextManager *instance();
     bool isConnected() const;
 

@@ -4,15 +4,10 @@
 #include "qpipewire_instance_p.h"
 
 #include "qpipewire_symbolloader_p.h"
+#include "qpipewire_support_p.h"
 
 #include <QtCore/qmutex.h>
 #include <mutex>
-
-#if !PW_CHECK_VERSION(0, 3, 75)
-extern "C" {
-bool pw_check_library_version(int major, int minor, int micro);
-}
-#endif
 
 QT_BEGIN_NAMESPACE
 

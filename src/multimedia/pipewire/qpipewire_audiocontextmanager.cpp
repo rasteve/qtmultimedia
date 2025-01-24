@@ -11,6 +11,12 @@
 
 #include <system_error>
 
+#if !PW_CHECK_VERSION(0, 3, 75)
+extern "C" {
+bool pw_check_library_version(int major, int minor, int micro);
+}
+#endif
+
 QT_BEGIN_NAMESPACE
 
 namespace QtPipeWire {
@@ -37,6 +43,11 @@ QAudioContextManager::~QAudioContextManager()
     m_coreConnection.reset();
     m_context.reset();
     m_eventLoop.reset();
+}
+
+bool QAudioContextManager::minimumRequirementMet()
+{
+    return pw_check_library_version(0, 3, 44); // we require PW_KEY_OBJECT_SERIAL
 }
 
 QAudioContextManager *QAudioContextManager::instance()

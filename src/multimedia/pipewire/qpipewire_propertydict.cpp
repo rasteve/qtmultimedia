@@ -5,10 +5,15 @@
 
 #include <QtCore/qspan.h>
 
+#include <cstdint>
+
 QT_BEGIN_NAMESPACE
 
 #ifndef PW_KEY_DEVICE_SYSFS_PATH
 #  define PW_KEY_DEVICE_SYSFS_PATH "device.sysfs.path"
+#endif
+#ifndef PW_KEY_OBJECT_SERIAL
+#  define PW_KEY_OBJECT_SERIAL "object.serial"
 #endif
 
 namespace QtPipeWire {
@@ -72,6 +77,22 @@ struct Converter<uint32_t>
     }
 };
 
+template <>
+struct Converter<uint64_t>
+{
+    std::optional<uint64_t> operator()(std::string_view sv) const
+    {
+        static_assert(sizeof(qulonglong) == sizeof(uint64_t));
+
+        bool ok{};
+        uint64_t ret = QLatin1StringView(sv).toULongLong(&ok);
+        if (ok)
+            return ret;
+
+        return std::nullopt;
+    }
+};
+
 template <typename T>
 std::optional<T> resolveInDictionary(const PwPropertyDict &dict, std::string_view key)
 {
@@ -90,9 +111,12 @@ std::optional<std::string_view> getNodeName(const PwPropertyDict &dict)
     return resolveInDictionary(dict, PW_KEY_NODE_NAME);
 }
 
-std::optional<uint32_t> getDeviceId(const PwPropertyDict &dict)
+std::optional<ObjectId> getDeviceId(const PwPropertyDict &dict)
 {
-    return resolveInDictionary<uint32_t>(dict, PW_KEY_DEVICE_ID);
+    auto resolvedUint32 = resolveInDictionary<uint32_t>(dict, PW_KEY_DEVICE_ID);
+    if (resolvedUint32)
+        return ObjectId{ *resolvedUint32 };
+    return std::nullopt;
 }
 
 std::optional<std::string_view> getDeviceSysfsPath(const PwPropertyDict &dict)
@@ -108,6 +132,14 @@ std::optional<std::string_view> getDeviceName(const PwPropertyDict &dict)
 std::optional<std::string_view> getDeviceDescription(const PwPropertyDict &dict)
 {
     return resolveInDictionary(dict, PW_KEY_DEVICE_DESCRIPTION);
+}
+
+std::optional<ObjectSerial> getObjectSerial(const PwPropertyDict &dict)
+{
+    auto resolvedUint64 = resolveInDictionary<uint64_t>(dict, PW_KEY_OBJECT_SERIAL);
+    if (resolvedUint64)
+        return ObjectSerial{ *resolvedUint64 };
+    return std::nullopt;
 }
 
 } // namespace QtPipeWire
