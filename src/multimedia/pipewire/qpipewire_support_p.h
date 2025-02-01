@@ -140,6 +140,7 @@ using ObjectSerial = StrongIdType<uint64_t, ObjectSerialTag>;
 // debug support
 QDebug operator<<(QDebug dbg, const spa_dict &dict);
 QDebug operator<<(QDebug dbg, enum pw_stream_state);
+QDebug operator<<(QDebug dbg, const pw_time &state);
 
 // rtsan
 #if defined(__has_attribute) && __has_cpp_attribute(clang::nonblocking)

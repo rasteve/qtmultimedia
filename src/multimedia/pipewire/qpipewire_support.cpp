@@ -42,4 +42,17 @@ QDebug operator<<(QDebug dbg, pw_stream_state state)
     return dbg << "unknown pw_stream_state";
 }
 
+QDebug operator<<(QDebug dbg, const pw_time &state)
+{
+    // pw_time may have more members, but those are only required to exist in 0.3.55 and later
+    dbg << QStringLiteral(u"pw_time{now: %1ns, rate: %2/%3, ticks: %4, delay: %5, queued: %6}")
+                    .arg(state.now)
+                    .arg(state.rate.num)
+                    .arg(state.rate.denom)
+                    .arg(state.ticks)
+                    .arg(state.delay)
+                    .arg(state.queued);
+    return dbg;
+}
+
 QT_END_NAMESPACE
