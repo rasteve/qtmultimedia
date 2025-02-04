@@ -78,19 +78,6 @@ struct PwCoreConnectionDeleter
 
 using PwCoreConnectionHandle = std::unique_ptr<pw_core, PwCoreConnectionDeleter>;
 
-// some span utils (poor man's ranges-v3)
-template <typename U>
-static QSpan<U> drop(QSpan<U> span, int n)
-{
-    return span.subspan(n); // ranges::drop
-}
-
-template <typename U>
-static QSpan<U> take(QSpan<U> span, int n)
-{
-    return span.first(n); // ranges::take
-}
-
 // strong id types
 
 template <typename T, typename Tag>
