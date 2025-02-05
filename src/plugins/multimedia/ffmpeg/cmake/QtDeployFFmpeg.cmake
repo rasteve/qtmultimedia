@@ -28,6 +28,12 @@ function(qt_internal_multimedia_copy_or_install_ffmpeg)
             endif()
         endforeach()
         list(REMOVE_DUPLICATES ffmpeg_frameworks)
+        # Fail the build if we failed to find any of the FFmpeg frameworks we wanted to deploy.
+        # This can happen if there's an incompatibility between CI ffmpeg-install script and
+        # this deployment script.
+        if (NOT ffmpeg_frameworks)
+            message(FATAL_ERROR "Attempted to install iOS FFmpeg Frameworks but none were found.")
+        endif()
     endif()
 
     if (QT_WILL_INSTALL)
