@@ -1,8 +1,8 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
 
-#ifndef QPIPEWIRE_AUDIODEVICEMONITOR_P_H
-#define QPIPEWIRE_AUDIODEVICEMONITOR_P_H
+#ifndef QPIPEWIRE_REGISTRY_SUPPORT_P_H
+#define QPIPEWIRE_REGISTRY_SUPPORT_P_H
 
 //
 //  W A R N I N G
@@ -15,25 +15,37 @@
 // We mean it.
 //
 
-#include <QtCore/qobject.h>
+#include <QtCore/qglobal.h>
 
 #include <pipewire/pipewire.h>
+
+#include <optional>
+#include <string_view>
 
 QT_BEGIN_NAMESPACE
 
 namespace QtPipeWire {
 
-class QAudioDeviceMonitor : public QObject
+enum class PipewireRegistryType : uint8_t
 {
-public:
-    void objectAdded(uint32_t id, uint32_t permissions, const char *type, uint32_t version,
-                     const spa_dict *props);
-
-    void objectRemoved(uint32_t id);
+    Client,
+    Core,
+    Device,
+    Factory,
+    Link,
+    Metadata,
+    Module,
+    Node,
+    Port,
+    Profiler,
+    Registry,
+    SecurityContext,
 };
+
+std::optional<PipewireRegistryType> parsePipewireRegistryType(std::string_view sv);
 
 } // namespace QtPipeWire
 
 QT_END_NAMESPACE
 
-#endif // QPIPEWIRE_AUDIODEVICEMONITOR_P_H
+#endif // QPIPEWIRE_REGISTRY_SUPPORT_P_H
